@@ -1,0 +1,7 @@
+var/**
+media/catalog/**
+media/tmp/**
+.project
+/nbproject
+app/etc/local.xml
+import_apr/pages/*
