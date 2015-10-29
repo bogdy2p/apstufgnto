@@ -1,0 +1,597 @@
+<style type="text/css">
+	.form-element label,.assigned-categories-labels label{font-weight:bold;}
+</style>
+
+<?php
+$_categories = $this->getCategories();
+$_product = $this->getProduct();
+$_category_assignments = array();
+
+$_postageAttribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_postage');
+$_postageAttributeArray = array();
+foreach ($_postageAttribute->getSource()->getAllOptions(true, true) as $_option) {
+	if ($_option['value']) {
+		$_postageAttributeArray[$_option['value']] = $_option['label'];
+	}
+}
+	
+if ($_product->getId()) {
+	$_category_assignments = Mage::helper('reea_entries')->getProductCategoryAssignments($_product->getId());
+}
+
+function field($p_aParams) {
+	global $_fields;
+	print $_fields[$p_aParams['name']]->toHtml();
+}
+	/*
+	 * $this 
+	 * 		-> Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Attributes
+	 * 		-> Mage_Adminhtml_Block_Catalog_Form
+	 * 		-> Mage_Adminhtml_Block_Widget
+	 * 
+	 * getForm() - returns:
+	 * 
+	 */
+	//pr(get_class($this));
+	//pr(get_class($this->getForm()));
+	
+	$l_oForm = $this->getForm();
+	//pr(array_keys($this->getData()));
+	//pr($this->getGroup()->getData());
+	//pr($this->getGroupAttributes());
+	
+	foreach ($this->getGroupAttributes() as $l_oAttribute) {
+		//pr(array_keys($l_oAttribute->getData()));
+		//pr($l_oAttribute->getAttributeCode());
+	}
+	
+	//die();
+	//$l_oFieldSet = $l_oForm->getElement('group_fields203');
+	
+	foreach ($l_oForm->getElements() as $l_oElement) {
+		if ($l_oElement instanceof Varien_Data_Form_Element_Fieldset) {
+			//pr(get_class($l_oElement));
+			$l_oFieldSet = $l_oElement;
+			//pr($l_oElement->getId());
+		}
+	}
+	
+	//die();
+	
+	//pr(get_class($l_oFieldSet));
+	
+	// some custom field
+	
+	$l_oFields = $l_oFieldSet->getElements();
+	
+	$_fields = array();
+	
+	
+	foreach ($l_oFields as $l_mKey => $l_oField) {
+		$_fields[$l_oField->getId()] = $l_oField;
+		//$l_oField->setAfterElementHtml($l_oField->getName());
+		//$l_oField->setBeforeElementHtml($l_oField->getName());
+		
+		//pr('['. $l_mKey. ']: '. get_class($l_oField));
+//		pr(array_keys($l_oField->getData()));
+		
+		if (is_object($l_oField->getRenderer())) {
+			$l_oRender = $l_oField->getRenderer();
+			$l_oRender->setTemplate('reea_entries/element.phtml');
+		}
+		
+		//pr($l_oField->getId());
+		
+		//pr(get_class($l_oField->getRenderer()));
+		//pr('['. $l_mKey. ']: '. get_class($l_oField));
+		//pr($l_oField->toHtml());
+	}
+	$this->_formFields = $_fields;
+	//die();
+?>
+<div class="entry-edit">
+	<?php //echo $this->getFormHtml();?>
+	<?php Varien_Profiler::start('form/toHtml'); ?>
+	<?php if ($useContainer = $l_oForm->getUseContainer()): ?>
+	<form <?php print $this->serialize($l_oForm->getHtmlAttributes()); ?>>
+		<div>
+			<?php if (strtolower($l_oForm->getData('method')) == 'post'): ?>
+				<input name="form_key" type="hidden" value="<?php print Mage::getSingleton('core/session')->getFormKey();?>" />
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
+	
+	<?php
+		foreach ($l_oForm->getElements() as $element) {
+			//pr(get_class($element));
+			//echo $element->toHtml();
+		}
+	?>
+	
+	<!-- START render the fieldset -->
+	
+	<?php $_element = $l_oFieldSet; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	<div id="<?php echo $_element->getFieldsetContainerId(); ?>">
+	<?php endif; ?>
+	<?php if ($_element->getLegend()): ?>
+	<div class="entry-edit-head">
+		<h4 class="icon-head head-edit-form fieldset-legend"><?php echo $_element->getLegend() ?></h4>
+		<div class="form-buttons"><?php echo $_element->getHeaderBar() ?></div>
+	</div>
+	<?php endif; ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		<div class="fieldset <?php echo $_element->getClass() ?>" id="<?php echo $_element->getHtmlId() ?>">
+	<?php endif; ?>
+		<div class="hor-scroll">
+			<?php if ($_element->getComment()): ?>
+				<p class="comment"><?php echo $this->escapeHtml($_element->getComment()) ?></p>
+			<?php endif; ?>
+			<?php if ($_element->hasHtmlContent()): ?>
+				<?php echo $_element->getHtmlContent(); ?>
+			<?php else: ?>
+			<table cellspacing="0" class="<?php echo $_element->hasTableClass() ? $_element->getTableClass() : 'form-list'?>">
+				<tbody>
+					<tr>
+						<td>
+							<div style="width: 50%" class="f-left">
+								<ul class="entry-details f-right left-side">
+									<li>
+										<?php echo $_fields['status']->setExtraCssClass('f-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['visibility']->setExtraCssClass('f-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_batch_id']->setExtraCssClass('f-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['entry_on_hold']->setExtraCssClass('f-left')->toHtml(); ?>										
+										<div style="clear: both;"></div>
+									</li>									
+									<li>
+										<?php echo $_fields['entry_work_in_progress']->setExtraCssClass('f-left')->toHtml(); ?>
+										<?php echo $_fields['price']->setExtraCssClass('f-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['sku']->setExtraCssClass('f-left')->toHtml(); ?>
+										<?php echo $_fields['entry_date']->setExtraCssClass('f-right')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										
+										<?php echo $_fields['entry_mapmaker']->setExtraCssClass('f-left name')->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_mapmaker_from_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setBeforeElementHtml('(')
+											->setAfterElementHtml('-')
+											->toHtml(); ?>
+										
+										<?php echo $_fields['entry_mapmaker_to_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setAfterElementHtml(')')
+											->toHtml(); ?>
+										</div>
+										
+										
+										
+											
+										<div style="clear: both;"></div>
+										
+									</li>
+									
+									<li>
+										
+										<?php echo $_fields['entry_artist']->setExtraCssClass('f-left name')->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_artist_from_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setBeforeElementHtml('(')
+											->setAfterElementHtml('-')
+											->toHtml(); ?>	
+										
+										<?php echo $_fields['entry_artist_to_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setAfterElementHtml(')')
+											->toHtml(); ?>
+										</div>
+																		
+										
+											
+										<div style="clear: both;"></div>
+										
+									</li>
+									
+									<li>
+										
+										<?php echo $_fields['entry_engraver']->setExtraCssClass('f-left name')->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_engraver_from_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setBeforeElementHtml('(')
+											->setAfterElementHtml('-')
+											->toHtml(); ?>	
+										
+										<?php echo $_fields['entry_engraver_to_year']
+											->setExtraCssClass('f-left date')
+											->setHideLabel(true)
+											->setAfterElementHtml(')')
+											->toHtml(); ?>
+										</div>
+																		
+											
+										<div style="clear: both;"></div>
+										
+									</li>
+
+									<li>
+										<?php echo $_fields['name']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_condition']
+											->setExtraCssClass('condition')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php 
+										$attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+										$entry_technique = $attribute->getSource()->getOptionText($_fields['entry_technique']->getValue());?>
+										<div class="form-element technique">
+											<label for="name">Technique</label>
+											<input type="text" class="input-text" value="<?php print $entry_technique;?>" name="product[entry_technique]" id="entry_technique">
+											<div style="clear: both"></div>
+										</div>
+										<div style="clear: both;"></div>
+										<script type="text/javascript">
+											var techniques = <?php print json_encode(Mage::helper('reea_entries')->getAvailabelTechniques()); ?>;
+											$j(document).ready(function(){
+												$j('#entry_technique').autocomplete({
+            										source: techniques
+        										});
+											});
+										</script>
+									</li>
+									<li>
+										<?php echo $_fields['entry_unmatted']
+											->setExtraCssClass('f-left')
+											->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_image_size_width']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')
+											->setBeforeElementHtml($this->__('Image size'))
+											->setAfterElementHtml('<span class="subscript">mm</span> *')
+											->toHtml(); ?>
+										<?php echo $_fields['entry_image_size_height']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')										
+											->setAfterElementHtml('<span class="subscript">mm</span>')
+											->toHtml(); ?>
+										
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_matted']
+											->setExtraCssClass('f-left')
+											->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_frame_size_width']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')
+											->setBeforeElementHtml($this->__('Frame size'))
+											->setAfterElementHtml('<span class="subscript">mm</span> *')
+											->toHtml(); ?>
+										<?php echo $_fields['entry_frame_size_height']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')										
+											->setAfterElementHtml('<span class="subscript">mm</span>')
+											->toHtml(); ?>
+										
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_framed']
+											->setExtraCssClass('f-left')
+											->toHtml(); ?>
+										<div style="float:right;">
+										<?php echo $_fields['entry_plate_mark_size_width']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')
+											->setBeforeElementHtml($this->__('Plate mark size'))
+											->setAfterElementHtml('<span class="subscript">mm</span> *')
+											->toHtml(); ?>
+										<?php echo $_fields['entry_plate_mark_size_height']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')										
+											->setAfterElementHtml('<span class="subscript">mm</span>')
+											->toHtml(); ?>
+										
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<div style="float:right;">
+										<?php echo $_fields['entry_paper_size_width']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')
+											->setBeforeElementHtml($this->__('Paper size'))
+											->setAfterElementHtml('<span class="subscript">mm</span> *')
+											->toHtml(); ?>
+										<?php echo $_fields['entry_paper_size_height']
+											->setHideLabel(true)
+											->setExtraCssClass('f-left size')										
+											->setAfterElementHtml('<span class="subscript">mm</span>')
+											->toHtml(); ?>
+										
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<div class="">
+											<?php
+												$_number_of_default_categories = 3;
+												$_number_of_assigned_categories = count($_product->getCategoryIds());
+												$_assigned_category_ids = $_product->getCategoryIds();
+												//pr($_number_of_assigned_categories);
+												//pr($_entry->getCategoryIds());
+												
+												$_number_of_dropdowns_to_render = max($_number_of_default_categories, $_number_of_assigned_categories);
+												?>
+												<div class="assigned-categories-labels">
+													<label class="catalog" ><?php print $this->__('Catalog'); ?></label>
+													<label class="subject"><?php print $this->__('SUBJECT'); ?></label>
+													<label class="subsubject"><?php print $this->__('SUB-SUBJECT'); ?></label>
+												</div>
+												<div class="clear"></div>
+												<ul class="assigned-to-categories">
+												<?php for ($i = 0; $i < $_number_of_dropdowns_to_render; $i++): ?>
+													<?php if (isset($_assigned_category_ids[$i])): ?>
+													<?php $_assiged_category_id = $_assigned_category_ids[$i]; ?>
+													<?php else: ?>
+													<?php $_assiged_category_id = null; ?>
+													<?php endif; ?>
+													<li>
+														<span class="f-left"><?php print ($i + 1);?>.</span>
+														<img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />
+														<select class="f-left" id="assigned_category_id_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][id]">
+															<option value=""><?php print $this->__('please select'); ?></option>
+															<?php foreach ($_categories as $_category_id => $_category_name): ?>
+															<option value="<?php print $_category_id; ?>" <?php print ($_assiged_category_id == $_category_id)?'selected':''; ?>><?php print $_category_name; ?></option>
+															<?php endforeach; ?>
+														</select>
+														<input class="f-left input-text" type="text" id="assigned_category_subject_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][subject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subject']:''; ?>" />
+														<input class="f-left input-text" type="text" id="assigned_category_subsubject_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][subsubject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subsubject']:''; ?>" />
+														<div class="clear"></div>
+													</li>
+												<?php endfor; ?>
+												</ul>
+												<div class="image-buttons catalogue">
+													<button style="" class="scalable" type="button" title="Link another catalgoue" id="set_catalogues"><span><span><span>Link another catalogue</span></span></span></button><div class="clear"></div>
+												</div>
+											
+											
+											<?php 
+												/*echo $this->getLayout()->createBlock(
+													'adminhtml/catalog_product_edit_tab_categories',
+													'product.categories'
+												)
+												->setTemplate('reea_entries/tab/categories.phtml')
+												->toHtml(); */
+											?>
+											<div style="clear: both;"></div>
+										</div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_catalogue_number']->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>									
+									<li>
+										<?php echo $_fields['entry_is_sold']
+											->setExtraCssClass('f-right')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_hide']
+											->setExtraCssClass('f-right')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['entry_is_featured']
+											->setExtraCssClass('f-right')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li><?php echo $_fields['meta_title']->setExtraCssClass('f-left')->toHtml(); ?><div style="clear: both;"></div></li>
+									<li><?php echo $_fields['meta_keyword']->setExtraCssClass('f-left meta-keyword')->toHtml(); ?><div style="clear: both;"></div></li>
+									<li><?php echo $_fields['meta_description']->setExtraCssClass('f-left meta-description')->toHtml(); ?><div style="clear: both;"></div></li>
+								</ul>
+							</div>
+							<div style="width: 50%" class="f-right">
+								<ul class="entry-details f-left right-side">
+									<li>
+										<?php echo $_fields['description']
+											->setExtraCssClass('f-left description')
+											->toHtml(); 
+										?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['short_description']
+											->setExtraCssClass('f-left description')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<table><?php print $_fields['media_gallery']->toHtml(); ?></table>
+									</li>
+									<li>
+										<label class="postage"><?php print $this->__('Postage'); ?>&nbsp;<span class="red"><?php print $this->__('WARNING: This is the postage size not the image size!'); ?></span></label>
+										<div class="entry-postage-container">
+											<ul>
+												<?php $_count = 1; ?>
+												<?php foreach ($_postageAttributeArray as $_postage_id => $_postage_label): ?>
+												<li>
+													<span><?php print $_count++; ?></span>
+													<input class="<?php print ($this->__('Other') == $_postage_label)?'other':''; ?>" type="radio" <?php print ($_product->getEntryPostage() == $_postage_id)?'checked':''; ?> name="product[entry_postage]" value="<?php print $_postage_id; ?>" id="entry_postage_<?php print $_postage_id; ?>" />
+													<label for="entry_postage_<?php print $_postage_id; ?>"><?php print $_postage_label; ?></label>
+												</li>
+												<?php endforeach; ?>
+												<li>
+													<?php $_display_entry_custom_postage = false; ?>
+													<?php if ($_product->getEntryPostage() && $this->__('Other') == $_postageAttributeArray[$_product->getEntryPostage()]): ?>
+													<?php $_display_entry_custom_postage = true; ?>
+													<?php endif; ?>
+													<input style="display: <?php print $_display_entry_custom_postage?'':'none'; ?>" class="<?php print $_display_entry_custom_postage?'required-entry':''; ?> input-text" type="text" id="entry_custom_postage" name="product[entry_custom_postage]" value="<?php print $_product->getEntryCustomPostage(); ?>" />
+												</li>
+											</ul>
+										</div>
+										
+									</li>
+									<li>
+										<?php 
+											print $this->getLayout()->createBlock(
+												'adminhtml/catalog_product_edit_tab_websites',
+												'product.websites'
+											)
+											->setTemplate('reea_entries/tab/websites.phtml')
+											->toHtml(); 
+										?>									
+									</li>
+								</ul>
+							</div>
+							<div style="clear: both"></div>
+						</td>
+					</tr>
+					
+					<?php //echo $_element->getChildrenHtml(); ?>
+					<?php foreach ($_fields as $_field): ?>
+						<?php if ($_field->getRequired()): ?>
+						<?php //print $_field->toHtml(); ?>
+						<?php endif; ?>
+					<?php endforeach; ?>
+					
+					<?php //print $_fields['tax_class_id']->toHtml(); ?>
+					
+					<?php //print $_fields['tax_class_id']->toHtml(); ?>
+					<?php //print $_fields['sku']->toHtml(); ?>
+					<?php //print $_fields['status']->toHtml(); ?>
+					<?php //print $_fields['weight']->toHtml(); ?>
+					<?php //print $_fields['media_gallery']->toHtml(); ?>
+					
+					<!--
+					<div class="" style="width: 45%">
+						<?php 
+							/*$this->getLayout()->createBlock(
+								'adminhtml/catalog_product_edit_tab_categories',
+								'product.categories'
+							)
+							->setTemplate('reea_entries/tab/categories.phtml')
+							->toHtml(); */
+						?>
+						<div style="clear: both;"></div>
+					</div>
+					<div class="" style="width: 45%">
+						<?php 
+							/*$this->getLayout()->createBlock(
+								'adminhtml/catalog_product_edit_tab_websites',
+								'product.websites'
+							)
+							->setTemplate('reea_entries/tab/websites.phtml')
+							->toHtml(); */
+						?>
+						<div style="clear: both;"></div>
+					</div>-->
+					
+				</tbody>
+			</table>
+			<?php endif; ?>
+		</div>
+		<?php echo $_element->getSubFieldsetHtml() ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		</div>
+	<?php endif; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	</div>
+	<?php endif; ?>
+	
+	<!-- END render the fieldset -->	
+	
+	<?php if ($useContainer): ?>
+	</form>
+	<?php endif; ?>
+	<?php Varien_Profiler::stop('form/toHtml'); ?>
+</div>
+<?php echo $this->getChildHtml('form_after');?>
+<script type="text/javascript">
+$j(document).ready(function() {
+	$j('button#set_catalogues').click(function () {
+		
+		var l_oUL = $j('ul.assigned-to-categories');
+		var l_iNumberOfLIs = $j('li', l_oUL).length;
+		
+		// generate a new category selection item
+		
+		var l_sItemHTML = '<li>' + 
+				'<span class="f-left">' + (l_iNumberOfLIs + 1) + '.</span>' +
+				'<img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />' + 
+				'<select class="f-left" id="assigned_category_id_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][id]">' + 
+					'<option value=""><?php print $this->__('please select'); ?></option>' + 
+					<?php foreach ($_categories as $_category_id => $_category_name): ?>
+					'<option value="<?php print $_category_id; ?>"><?php print addslashes($_category_name); ?></option>' + 
+					<?php endforeach; ?>
+				'</select>' + 
+				'<input class="f-left input-text" type="text" id="assigned_category_subject_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][subject]" value="" />' +
+				'<input class="f-left input-text" type="text" id="assigned_category_subsubject_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][subsubject]" value="" />' +
+				'<div class="clear"></div>' +
+			'</li>';
+			
+		l_oUL.append(l_sItemHTML);
+		
+		return false;
+	});
+	
+	$j('ul.assigned-to-categories li img').live('click', function() {
+		var l_oUL = $j(this).parent().parent();
+		$j(this).parent().remove();
+		var l_iCount = 1;
+		//console.log(l_oUL);
+		//console.log($j('span', l_oUL));
+		$j.each($j('span', l_oUL), function(k, p_oSPAN) {
+			$j(p_oSPAN).html(l_iCount + '.');
+			l_iCount++;
+			return true;
+		});
+		return true;
+	});
+	
+	$j('div.entry-postage-container ul li input[type=radio]').click(function() {
+		if ($j(this).hasClass('other')) {
+			$j('#entry_custom_postage').val('').addClass('required-entry').show();
+		}
+		else {
+			$j('#entry_custom_postage').val('').removeClass('required-entry').hide();
+		}
+		return true;
+	});
+	
+});
+</script>

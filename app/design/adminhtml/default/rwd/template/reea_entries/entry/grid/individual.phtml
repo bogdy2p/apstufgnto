@@ -1,0 +1,237 @@
+<?php
+$_entry = $this->getEntry();
+$_id = $_entry->getId();
+$i = $j = 0;
+//pr($_entry->getEntryIsFetured(),false);
+?>
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+        jQuery(".view_larger").prettyPhoto({
+            default_width: canvasWidth,
+            default_height: canvasHeight,
+            autoplay_slideshow: false, 
+            opacity: 0.70, 
+            //modal: true, 
+            overlay_gallery: false,
+            changepicturecallback: setZoom,
+            callback: closeZoom,
+            social_tools: false,
+            image_markup: '<div style="width:'+canvasWidth+'px; height:'+canvasHeight+'px;"><img id="fullResImage" src="{path}" /></div>',
+            fixed_size: true,
+            allow_expand:true,
+            allow_resize:false,
+            responsive: true,
+            responsive_maintain_ratio: true,
+            max_WIDTH: '',
+            max_HEIGHT: ''
+        });
+    })
+</script>
+<?php 
+$subject = $_entry->getSubject();
+if($_entry->getSubject1()){
+	$subject.='|'.$_entry->getSubject1();	
+}
+$subsubject = $_entry->getSubsubject();
+if($_entry->getSubsubject1()){
+	$subsubject.='|'.$_entry->getSubsubject1();	
+}
+?>
+<div class="entry-details">
+	<div class="clear"></div>
+	<ul class="entry-data">
+		<li class="attribute">
+			<table class="subject-subsubject-table">
+				<tr>
+					<td class="label"><span class="attribute-name f-left"><?php print $this->__('Subject'); ?>:</span></td>
+					<td><i><?php print (($subject) ? "<b>".++$i.". </b>" : "") . str_replace("|","</td><td><b>".++$i.". </b>",$this->escapeHtml($subject));?></i></td>
+				</tr>
+				<tr>
+					<td class="label"><span class="attribute-name f-left"><?php print $this->__('Subject'); ?>:</span></td>
+					<td><i><?php print (($subsubject) ? "<b>".++$j.". </b>" : "") . str_replace("|","</td><td><b>".++$j.". </b>",$this->escapeHtml($subsubject));?></i></td>
+				</tr>
+			</table>
+		</li>
+		<!--<li class="attribute">-->
+			<!--<span class="attribute-name f-left"><?php // print $this->__('Subject'); ?>:</span>-->
+			<!--<p class="attribute-value f-left"><i><?php // print str_replace(array("[","]"), array("<b>",".</b> "), $_entry->getProductSubject()); ?></i></p>-->
+		<!--</li>-->
+		<!--<li class="attribute">-->
+					<!--<span class="attribute-name f-left"><?php // print $this->__('Subsubject'); ?>:</span>-->
+					<!--<p class="attribute-value f-left"><i><?php // print str_replace(array("[","]"), array("<b>",".</b> "), $_entry->getProductSubsubject()); ?></i></p>-->
+		<!--</li>-->
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Title'); ?>:</span>
+			<p class="attribute-value f-left wider"><i><?php print $this->escapeHtml($_entry->getName()); ?></i></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Description'); ?>:</span>
+			<p class="attribute-value f-left"><?php print !strlen(trim(($_entry->getDescription()))) ? $this->__('N/A') : $this->__('Y'); ?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Biography'); ?>:</span>
+			<p class="attribute-value f-left"><?php print !strlen(trim(($_entry->getShortDescription()))) ? $this->__('N/A') : $this->__('Y'); ?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Date'); ?>:</span>
+			<p class="attribute-value f-left">
+				<?php 
+					if(!$_entry->getEntryDate2()){
+						if($_entry->getEntryDate()){
+							$date = 'C'.$_entry->getEntryDate();	
+						}else{
+							$date = 'N/A';
+						}
+					} else {
+						if($_entry->getEntryDate()){
+							$date = $_entry->getEntryDate().' ('.$_entry->getEntryDate2().')';	
+						}else{
+							$date = 'N/A';
+						}
+					} 
+				?>
+				<?php print $date; ?>
+			</p>
+		</li>
+		<?php if($_entry->getEntryMapmaker()){ ?>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Mapmaker'); ?>:</span>
+			<p class="attribute-value f-left">
+				<?php print $_entry->getEntryMapmaker()?$this->escapeHtml($_entry->getEntryMapmaker()):$this->__('N/A'); ?>
+				<?php if ($_entry->getEntryMapmakerToYear() && $_entry->getEntryMapmakerFromYear()){ ?>
+					(<?php print $_entry->getEntryMapmakerFromYear();?> - <?php print $_entry->getEntryMapmakerToYear();?>)
+				<?php } ?>
+			</p>
+		</li>
+		<?php } ?>
+		<?php if($_entry->getEntryArtist()){ ?>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Artist'); ?>:</span>
+			<p class="attribute-value f-left">
+				<?php print $_entry->getEntryArtist()?$this->escapeHtml($_entry->getEntryArtist()):$this->__('N/A'); ?>
+				<?php if ($_entry->getEntryArtistToYear() && $_entry->getEntryArtistFromYear()){ ?>
+					(<?php print $_entry->getEntryArtistFromYear();?> - <?php print $_entry->getEntryArtistToYear();?>)
+				<?php } ?>
+			</p>
+		</li>
+		<?php } ?>
+		<?php if($_entry->getEntryEngraver()){ ?>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Engraver'); ?>:</span>
+			<p class="attribute-value f-left">
+				<?php print $_entry->getEntryEngraver()?$this->escapeHtml($_entry->getEntryEngraver()):$this->__('N/A'); ?>
+				<?php if ($_entry->getEntryEngraverToYear() && $_entry->getEntryEngraverFromYear()){ ?>
+					(<?php print $_entry->getEntryEngraverFromYear();?> - <?php print $_entry->getEntryEngraverToYear();?>)
+				<?php } ?>
+			</p>
+		</li>
+		<?php } ?>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Condition'); ?>:</span>
+			<p class="attribute-value f-left"><?php print $_entry->getEntryCondition()?$this->escapeHtml($_entry->getEntryCondition()):$this->__('N/A'); ?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Technique'); ?>:</span>
+			<?php 
+				$attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+				$entry_technique = $attribute->getSource()->getOptionText($_entry->getEntryTechnique());
+			?>
+			<p class="attribute-value f-left"><?php print $entry_technique?$entry_technique:$this->__('N/A'); ?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Stock number'); ?>:</span>
+			<p class="attribute-value f-left"><span style="text-transform: uppercase;"><?php print $this->escapeHtml($_entry->getStockNumber()); ?></span></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Cost code'); ?>:</span>
+			<p class="attribute-value f-left"><?php print !strlen(trim($_entry->getProductCostCode())) ? $this->__('N/A') : $this->escapeHtml($_entry->getProductCostCode()); ?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Price'); ?>:</span>
+			<p class="attribute-value f-left"><?php print Mage::helper('core')->currency($_entry->getPrice()); ?></p>
+		</li>
+		<li class="attribute entry-status-color-code">
+			<span class="attribute-name f-left"><?php print $this->__('Status'); ?>:</span>
+			<p class="attribute-value f-left">
+				<span style="color: #ffac47;" title="Enabled"><?php echo ($_entry->getStatus() == 1) ? $this->__("<span>E</span>") : ""; ?></span>
+				<span style="color: black;" title="Not Enabled"><?php echo ($_entry->getStatus() == 2) ? $this->__("<span>I/P</span>") : ""; ?></span>
+				<span style="color: lime;" title="Featured"><?php echo ($_entry->getEntryIsFeatured() == 1) ? $this->__("<span>F</span>") : ""; ?></span>
+				<span style="color: red;" title="Sold"><?php echo ($_entry->getEntryIsSold() == 1) ? $this->__("<span>S</span>") : ""; ?></span>
+				<span style="color: green;" title="Printed Feature"><?php echo ($_entry->getPrintedFeature() == 1) ? $this->__("<span>PF</span>") : ""; ?></span>
+				<span style="color: skyblue;" title="Hide"><?php echo ($_entry->getEntryHide() == 1) ? $this->__("<span>H</span>") : ""; ?></span>
+				<span style="color: orange;" title="On Hold"><?php echo ($_entry->getEntryOnHold() == 1) ? $this->__("<span>OH</span>") : ""; ?></span>
+			</p>
+		</li>
+		<?php // if($_entry->getEntryIsSold()){ ?>
+<!--                    <li class="attribute">
+                        <span class="attribute-name f-left"><?php // print $this->__('Sold'); ?>:</span>
+                        <p class="attribute-value f-left"><?php // print Mage::getModel('catalog/product')->getResource()->getAttribute('entry_is_sold')->getSource()->getOptionText($_entry->getEntryIsSold()); ?></p>
+                    </li>-->
+		<?php // } ?>
+		<?php // if($_entry->getEntryHide()){ ?>
+<!--                    <li class="attribute">
+                        <span class="attribute-name f-left"><?php // print $this->__('Hide'); ?>:</span>
+                        <p class="attribute-value f-left"><?php // print Mage::getModel('catalog/product')->getResource()->getAttribute('entry_hide')->getSource()->getOptionText($_entry->getEntryHide()); ?></p>
+                    </li>-->
+		<?php // } ?>
+		<?php // if($_entry->getEntryIsFeatured()){ ?>
+<!--                    <li class="attribute">
+                        <span class="attribute-name f-left"><?php // print $this->__('Featured'); ?>:</span>
+                        <p class="attribute-value f-left"><?php // print Mage::getModel('catalog/product')->getResource()->getAttribute('entry_is_featured')->getSource()->getOptionText($_entry->getEntryIsFeatured()); ?></p>
+                    </li>-->
+		<?php // } ?>
+		<?php // if($_entry->getEntryOnHold()){ ?>
+<!--                    <li class="attribute">
+                        <span class="attribute-name f-left"><?php // print $this->__('On Hold'); ?>:</span>
+                        <p class="attribute-value f-left"><?php // print Mage::getModel('catalog/product')->getResource()->getAttribute('entry_on_hold')->getSource()->getOptionText($_entry->getEntryOnHold()); ?></p>
+                    </li>-->
+		<?php // } ?>
+	</ul>
+	<div class="clear"></div>
+	<div class="entry-actions">
+		<button style="" onclick="window.location='<?php print $this->getUrl('*/*/edit', array('id' => $_id)); ?>';" class="a-center navigation scalable" type="button" title="<?php print $this->__('Edit this Entry'); ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Edit this Entry'); ?></a></span></span></span>
+		</button>		
+		<div>
+		<?php if (!$this->isInMultipleEntriesList($_id)): ?>
+		<button style="" class="add-to-list scalable navigation" type="button" title="<?php print $this->__('Add to Multiple Entries List'); ?>" id="add_to_multiple_entries_list_<?php print $_id; ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Add to Multiple Entries List'); ?></a></span></span></span>
+		</button>
+		<?php else: ?>
+		<button style="" class="remove-from-list scalable delete" type="button" title="<?php print $this->__('Remove from Multiple Entries List'); ?>" id="remove_from_multiple_entries_list_<?php print $_id; ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Remove from Multiple Entries List'); ?></a></span></span></span>
+		</button>
+		<?php endif; ?>
+		</div>
+		
+		<div>
+			<?php if (!$this->isInEmailEntriesList($_id)): ?>
+				<button style="" class="add-to-email-list scalable navigation" type="button" title="<?php print $this->__('Add to Email Entries List'); ?>" id="add_to_email_entries_list_<?php print $_id; ?>">
+					<span><span><span><a href="javascript: void(0);"><?php print $this->__('Add to Email Entries List'); ?></a></span></span></span>
+				</button>
+			<?php else: ?>
+				<button style="" class="remove-from-email-list scalable delete" type="button" title="<?php print $this->__('Remove from Email Entries List'); ?>" id="remove_from_email_entries_list_<?php print $_id; ?>">
+					<span><span><span><a href="javascript: void(0);"><?php print $this->__('Remove from Email Entries List'); ?></a></span></span></span>
+				</button>
+			<?php endif; ?>
+		</div>
+		
+		<button style="" onclick="window.open('<?php print $this->getUrl('printerfriendly/index/index', array('product' => $_id)); ?>');" class="a-center navigation scalable" type="button" title="<?php print $this->__('Print Label'); ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Print Label'); ?></a></span></span></span>
+		</button>
+		<button style="" onclick="window.open('<?php print $this->getUrl('printerfriendly/index/index', array('product' => $_id,'with_price'=>1)); ?>');" class="a-center navigation scalable" type="button" title="<?php print $this->__('Print Label'); ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Print Label With Price'); ?></a></span></span></span>
+		</button>
+		<button style="" onclick="window.open('http://www.google.com/search?q=<?php echo Mage::helper("reea_entries")->getGoogleSearchQuery($_entry); ?>');" class="a-center navigation scalable" type="button" title="<?php print $this->__('Google Search'); ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Google Search'); ?></a></span></span></span>
+		</button>
+		<!-- <button style="" class="a-center navigation scalable" type="button" title="<?php print $this->__('Email to a friend'); ?>">
+			<span><span><span><a href="javascript: void(0);"><?php print $this->__('Email to a friend'); ?></a></span></span></span>
+		</button> -->
+	</div>
+</div>
+<script type="text/javascript">
+Reea.Entry.Grid.addToListUrl = '<?php print $this->getAddToListUrl(); ?>';
+Reea.Entry.Grid.removeFromListUrl = '<?php print $this->getRemoveFromListUrl(); ?>';
+Reea.Entry.Grid.formKey = '<?php echo Mage::getSingleton('core/session')->getFormKey() ?>';
+</script>

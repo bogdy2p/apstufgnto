@@ -1,0 +1,218 @@
+.clear {
+	clear: both;
+	height: 0px;
+}
+div.entry-details {
+	background: #fcfcf2;
+	padding: 10px;
+	position: relative;
+}
+
+div.entry-actions {
+	position: absolute;
+	bottom: 0px;
+	right: 10px;
+	width: 240px;
+}
+
+div.entry-actions button {
+	float: left;
+	clear: both;
+	display: block;
+	margin-bottom: 10px;
+}
+
+p.entry-name {
+	color: #8c8c8c;
+	text-transform: uppercase;
+	font-size: 13px;
+	font-weight: bold;
+	padding-left: 180px;
+}
+
+p.entry-code {
+	font-size: 13px;
+	font-weight: bold;
+}
+
+ul.entry-data li.attribute {
+	display: block;
+	clear: both;
+}
+
+ul.entry-data li.entry-status-color-code span > span {
+    font-weight: bold;
+    padding-right: 3px;
+}
+
+
+
+
+ul.entry-data li span.attribute-name {
+	font-size: 13px;
+	width: 105px;
+	text-align: left;
+	display: block;
+}
+
+
+
+ul.entry-data li p.attribute-value {
+	font-size: 13px;
+        max-width: 720px;
+}
+
+#productGrid_table ul.entry-data li span.attribute-name{
+	display:inline-block !important;
+}
+
+#productGrid_table ul.entry-data li p.attribute-value{
+	display:inline-block !important;
+	float:none !important;
+}
+
+ul.entry-data li p.attribute-value.wider {
+    max-width: 965px;
+}
+
+ul.entry-data li div.attribute-value {
+}
+
+div.sort-by {
+	border: 0px solid red;
+	width: 250px;
+	display: block;
+	margin: 0px 10px;
+}
+
+ul.filter-list {
+	list-style-type: none;
+	display: block;
+	padding: 5px;
+}
+
+ul.filter-list li {
+	display: block;
+	list-style-type: none;
+	width: 330px;
+	padding: 2px;
+	display: block;
+	height: 20px;
+}
+
+ul.filter-list li a {
+	width: 90px;
+	display: block;
+	float: left;
+	font-weight: normal;
+	font-size: 12px;
+}
+
+.grid tr.filter ul.filter-list select {
+	width: 65px;
+}
+
+ul.filter-list li div {
+	float: left;
+	display: block;
+	width: 200px;
+}
+
+.grid tr.filter {
+	background: #E3EFF1;
+}
+
+div.search-buttons button {
+    margin: 0 0 0 5px;
+}
+
+ul.email-entries-list {
+	list-style-type: none;
+}
+
+ul.email-entries-list li {
+	list-style-type: none;
+	border: 1px solid #cccccc;
+	background: white;
+	margin-bottom: 5px;
+	display: block;
+	padding: 3px;
+}
+
+ul.email-entries-list li img {
+	background: white;
+	border: 2px solid #cccccc;
+	padding: 2px;
+	
+}
+
+ul.email-entries-list li div.image {
+	width: 66px;
+}
+
+ul.email-entries-addresses {
+	list-style-type: none;
+	margin-bottom: 20px;
+}
+
+ul.email-entries-addresses li {
+	list-style-type: none;
+	/*padding: 3px;*/
+	padding:5px 0px;
+	clear: both;
+}
+
+ul.email-entries-addresses li input {
+	margin: 0px 4px;
+}
+
+ul.email-entries-addresses li .validation-advice {
+	font-size: 10px;
+	
+}
+
+ul.email-entries-addresses li img {
+    margin-left: 3px;
+    margin-top: 6px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+
+.entry-data span.attribute-name{
+	font-weight: bold;
+}
+
+.smooth_zoom_preloader{
+    margin:0px auto !important;
+}
+
+.additional-images li{
+	float:left;
+	margin:5px;
+}
+
+table.subject-subsubject-table {
+    border: none;
+    border-collapse: collapse;
+    width: unset;
+}
+table.subject-subsubject-table tbody {
+    background: none;
+}
+
+.grid tr table.subject-subsubject-table tr {
+    background: none;
+    margin-bottom: 0.5em;
+}
+
+table.subject-subsubject-table tr td {
+    border: none;
+    padding: 0 15px 0.5em 0;
+    min-width: 105px;
+}
+
+table.subject-subsubject-table tr td.label {
+    width: 105px;
+    padding: 0 0 0.5em 0;
+}

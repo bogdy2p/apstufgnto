@@ -1,0 +1,39 @@
+<config>
+    <modules>
+        <Reea_Customergrid>
+            <version>0.0.2</version>
+        </Reea_Customergrid>
+    </modules>
+    <global>
+        <blocks>
+            <adminhtml>
+                <rewrite>
+                    <customer_grid>Reea_Customergrid_Block_Adminhtml_Customer_Grid</customer_grid>
+                    <customer_edit_tab_addresses>Reea_Customergrid_Block_Adminhtml_Customer_Edit_Tab_Addresses</customer_edit_tab_addresses>
+                </rewrite>
+            </adminhtml>
+        </blocks>   
+        
+        <resources>
+            <reea_customergrid_setup>
+                <setup>
+                    <module>Reea_Customergrid</module>
+                    <class>Mage_Customer_Model_Entity_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </reea_customergrid_setup>
+            <reea_customergrid_setup>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </reea_customergrid_setup>
+            <reea_customergrid_setup>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </reea_customergrid_setup>
+        </resources>
+    </global>
+</config>

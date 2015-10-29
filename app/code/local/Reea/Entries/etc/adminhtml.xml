@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<config>
+	
+	<menu>
+		<reea_entries_menu translate="title" module="reea_entries">
+			<title>Entries</title>
+			<sort_order>300</sort_order>
+			<children>
+				<manage translate="title" module="reea_entries">
+					<title>Manage Entries</title>
+					<sort_order>10</sort_order>
+					<action>reea_entries/adminhtml_index/index</action>
+				</manage>
+				<multiple_entries translate="title" module="reea_entries">
+					<title>Manage Multiple Entries</title>
+					<sort_order>20</sort_order>
+					<action>reea_entries/adminhtml_multiple/index</action>
+				</multiple_entries>
+				<entrypdf_entries translate="title" module="reea_entries">
+					<title>Manage Pdf Catalogues</title>
+					<sort_order>30</sort_order>
+					<action>reea_entries/adminhtml_entrypdf/index</action>
+				</entrypdf_entries>
+			</children>
+		</reea_entries_menu>
+	</menu>
+	
+	<acl>
+		<resources>
+			<admin>
+				<children>
+					<reea_entries_menu translate="title" module="reea_entries">
+						<title>Entries</title>
+						<sort_order>300</sort_order>
+						<children>
+							<manage translate="title" module="reea_entries">
+								<title>Manage Entries</title>
+								<sort_order>10</sort_order>
+							</manage>
+							<multiple_entries translate="title" module="reea_entries">
+								<title>Manage Multiple Entries</title>
+								<sort_order>20</sort_order>
+							</multiple_entries>
+							<entrypdf_entries translate="title" module="reea_entries">
+								<title>Manage Pdf Catalogues</title>
+								<sort_order>30</sort_order>
+							</entrypdf_entries>
+						</children>
+					</reea_entries_menu>
+				</children>
+			</admin>
+		</resources>
+	</acl>
+
+</config>

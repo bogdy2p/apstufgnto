@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <productlog_adminhtml_productlog_index>
+        <reference name="content">
+            <block type="productlog/adminhtml_productlog" name="productlog" />
+        </reference>
+    </productlog_adminhtml_productlog_index>
+</layout>

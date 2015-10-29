@@ -1,0 +1,156 @@
+<style type="text/css">
+	.form-element label,.assigned-categories-labels label{font-weight:bold;}
+</style>
+
+<?php
+$_categories = $this->getCategories();
+$_product = $this->getProduct();
+
+function field($p_aParams) {
+	global $_fields;
+	print $_fields[$p_aParams['name']]->toHtml();
+}
+	
+	
+	$l_oForm = $this->getForm();
+		
+	foreach ($l_oForm->getElements() as $l_oElement) {
+		if ($l_oElement instanceof Varien_Data_Form_Element_Fieldset) {
+			$l_oFieldSet = $l_oElement;
+
+		}
+	}
+	
+	$l_oFields = $l_oFieldSet->getElements();
+	
+	$_fields = array();
+	
+	
+	foreach ($l_oFields as $l_mKey => $l_oField) {
+		$_fields[$l_oField->getId()] = $l_oField;
+		
+		if (is_object($l_oField->getRenderer())) {
+			$l_oRender = $l_oField->getRenderer();
+			$l_oRender->setTemplate('reea_entries/element.phtml');
+		}
+		
+	}
+	$this->_formFields = $_fields;
+	
+	
+?>
+
+<div class="entry-edit">
+	<?php //echo get_class($this) ?>
+	
+	<?php //echo $this->getFormHtml(); //die;?>
+	<?php Varien_Profiler::start('form/toHtml'); ?>
+	<?php if ($useContainer = $l_oForm->getUseContainer()): ?>
+	<form <?php print $this->serialize($l_oForm->getHtmlAttributes()); ?>>
+		<div>
+			<?php if (strtolower($l_oForm->getData('method')) == 'post'): ?>
+				<input name="form_key" type="hidden" value="<?php print Mage::getSingleton('core/session')->getFormKey();?>" />
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
+	
+	<?php
+	//pr($_fields['name']);die;	
+	?>
+	
+	<!-- START render the fieldset -->
+	
+	<?php $_element = $l_oFieldSet; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	<div id="<?php echo $_element->getFieldsetContainerId(); ?>">
+	<?php endif; ?>
+	<?php if ($_element->getLegend()): ?>
+	<div class="entry-edit-head">
+		<h4 class="icon-head head-edit-form fieldset-legend"><?php echo $_element->getLegend() ?></h4>
+		<div class="form-buttons"><?php echo $_element->getHeaderBar() ?></div>
+	</div>
+	<?php endif; ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		<div class="fieldset <?php echo $_element->getClass() ?>" id="<?php echo $_element->getHtmlId() ?>">
+	<?php endif; ?>
+		<div class="hor-scroll">
+			<?php if ($_element->getComment()): ?>
+				<p class="comment"><?php echo $this->escapeHtml($_element->getComment()) ?></p>
+			<?php endif; ?>
+			<?php if ($_element->hasHtmlContent()): ?>
+				<?php echo $_element->getHtmlContent(); ?>
+			<?php else: ?>
+			<table cellspacing="0" class="<?php echo $_element->hasTableClass() ? $_element->getTableClass() : 'form-list'?>">
+				<tbody>
+					<tr>
+						<td>
+							<div class="f-left">
+								<ul style="border:none;" class="entry-details f-right left-side">
+									<li>
+										<?php echo $_fields['name']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['publication_details']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['price']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['description']
+											->setExtraCssClass('f-left description')
+											->toHtml(); 
+										?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<table><?php print $_fields['media_gallery']->toHtml(); ?></table>
+									</li>
+									<li>
+										<?php echo Mage::app()->getLayout()->createBlock('productupload/productupload')->setTemplate('productupload/content.phtml')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['purchase_product']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['online_catalogue']
+											->setExtraCssClass('title')
+											->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+								</ul>
+							</div>
+							<div style="clear: both"></div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<?php endif; ?>
+		</div>
+		<?php echo $_element->getSubFieldsetHtml() ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		</div>
+	<?php endif; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	</div>
+	<?php endif; ?>
+	
+	<!-- END render the fieldset -->	
+	
+	<?php if ($useContainer): ?>
+	</form>
+	<?php endif; ?>
+	<?php Varien_Profiler::stop('form/toHtml'); ?>
+</div>

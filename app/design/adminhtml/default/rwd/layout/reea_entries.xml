@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<layout>
+	
+    <default>
+        <reference name="before_body_end">
+            <block type="reea_development/development" name="reea.development" template="reea_development/development.phtml" />
+        </reference>
+        <reference name="head">
+
+                <action method="addJs"><name>jquery-1.7.2.min.js</name></action>
+                <action method="addJs"><name>uploadify/jquery.uploadify-3.1.min.js</name></action>
+                <action method="addJs"><name>jquery-no-conflict.js</name></action>
+                <action method="addJs"><name>jquery-ui/js/jquery-ui-1.8.20.custom.min.js</name></action>
+                <action method="addItem"><type>skin_js</type><name>js/jquery.smoothZoom.min.js</name></action>
+                <action method="addItem"><type>skin_js</type><name>js/jquery.prettyPhoto.js</name></action>
+                <action method="addItem"><type>js_css</type><file>uploadify/uploadify.css</file></action>
+                <action method="addItem"><type>skin_css</type><name>css/prettyPhoto.css</name></action>
+                <action method="addItem"><type>js_css</type><file>jquery-ui/css/ui-lightness/jquery-ui-1.8.20.custom.css</file></action>
+
+                <action method="addCss"><name>local.css</name></action>
+        </reference>
+    </default>
+
+
+    <reea_entries_adminhtml_index_index>
+            <reference name="content">
+                <block type="reea_entries/adminhtml_entry" name="entries_list">
+                    <block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                        <action method="setUseConfirm"><params>0</params></action>
+                    </block>
+                </block>
+            </reference>
+        <reference name="left">
+            <block name="category.tree" type="adminhtml/catalog_category_tree" template="reea_entries/entry/grid/categories.phtml" />
+        </reference>		
+        <reference name="head">
+            <action method="addCss"><name>reea_entry_for_grid.css</name></action>
+            <action method="addJs"><name>reea_entry_grid.js</name></action>
+            <action method="setTitle" translate="title"><title>Manage entries</title></action>
+        </reference>
+    </reea_entries_adminhtml_index_index>
+
+    <reea_entries_adminhtml_index_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="reea_entries/adminhtml_entry_grid" name="entry.grid"/>
+        </block>
+    </reea_entries_adminhtml_index_grid>
+
+    <reea_entries_adminhtml_index_edit>
+
+        <reference name="head">
+            <action method="addCss"><name>reea_entries.css</name></action>
+        </reference>
+
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" before="-"></block>
+            <block type="reea_entries/adminhtml_entry_edit_tabs" name="product_tabs"></block>
+            <block type="adminhtml/catalog_product_edit" name="product_edit" template="reea_entries/single/edit.phtml"></block>
+        </reference>
+        <remove name="left" />
+        <reference name="js">
+            <block type="adminhtml/catalog_product_edit_js" template="catalog/product/js.phtml" name="catalog_product_js"></block>
+            <block type="core/template" name="catalog.wysiwyg.js" template="catalog/wysiwyg/js.phtml"/>
+        </reference>
+
+    </reea_entries_adminhtml_index_edit>
+
+    <reea_entries_adminhtml_index_new>
+
+        <reference name="head">
+            <action method="addCss"><name>reea_entries.css</name></action>
+        </reference>
+
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="reea_entries/adminhtml_entry_edit_tabs" name="product_tabs"></block>
+            <block type="adminhtml/catalog_product_edit" name="product_edit"></block>
+        </reference>
+        <remove name="left" />
+        <reference name="left">
+
+        </reference>
+        <reference name="js">
+            <block type="adminhtml/catalog_product_edit_js" template="catalog/product/js.phtml" name="catalog_product_js"></block>
+            <block type="core/template" template="catalog/wysiwyg/js.phtml"/>
+        </reference>
+
+    </reea_entries_adminhtml_index_new>
+    
+    <reea_entries_adminhtml_multiple_index>
+		
+        <update handle="editor"/>
+
+        <reference name="head">
+            <action method="setCanLoadTinyMce"><value>1</value></action>
+            <action method="addCss"><name>reea_entries.css</name></action>		
+        </reference>
+        <reference name="content">
+            <block type="reea_entries/adminhtml_multiple_container" name="multiple.container" template="reea_entries/multiple/container.phtml">
+                <block type="reea_entries/adminhtml_multiple_grid" name="multiple.grid" />
+            </block>
+        </reference>		
+    </reea_entries_adminhtml_multiple_index>
+    
+    <reea_entries_adminhtml_multiple_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="reea_entries/adminhtml_multiple_grid" name="multiple.grid" />
+        </block>
+    </reea_entries_adminhtml_multiple_grid>
+    
+    <reea_entries_adminhtml_emailtoafriend_viewList>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="reea_entries/adminhtml_entry_emailtoafriend_list" name="entry.emailtoafriend.list" template="reea_entries/entry/emailtoafriend/list.phtml"/>
+        </block>
+    </reea_entries_adminhtml_emailtoafriend_viewList>
+    
+    <entries_report>
+        <block type="adminhtml/template" name="root" output="toHtml" template="reea_entries/entry/report.phtml"></block>
+    </entries_report>
+	
+    <reea_entries_adminhtml_entrypdf_index>
+        <reference name="content">
+            <block type="reea_entries/adminhtml_entrypdf" name="entries_list"></block>
+        </reference>	
+        <reference name="head">
+            <action method="addCss"><name>reea_entry_for_grid.css</name></action>
+            <action method="addJs"><name>reea_entry_grid.js</name></action>
+            <action method="setTitle" translate="title"><title>Manage PDF Catalogues</title></action>
+        </reference>
+    </reea_entries_adminhtml_entrypdf_index>
+	
+    <reea_entries_adminhtml_entrypdf_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="reea_entries/adminhtml_entrypdf_grid" name="entry.grid"/>
+        </block>
+    </reea_entries_adminhtml_entrypdf_grid>
+	
+    <reea_entries_adminhtml_entrypdf_edit>
+		
+        <reference name="head">
+            <action method="addCss"><name>reea_entries.css</name></action>
+        </reference>
+		
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" before="-"></block>
+            <block type="reea_entries/adminhtml_entrypdf_edit_tabs" name="product_tabs"></block>
+            <block type="adminhtml/catalog_product_edit" name="product_edit" template="reea_entries/entrypdf/edit.phtml"></block>
+        </reference>
+        <remove name="left" />
+        <reference name="js">
+            <block type="adminhtml/catalog_product_edit_js" template="catalog/product/js.phtml" name="catalog_product_js"></block>
+            <block type="core/template" name="catalog.wysiwyg.js" template="catalog/wysiwyg/js.phtml"/>
+        </reference>
+		
+    </reea_entries_adminhtml_entrypdf_edit>
+	
+    <reea_entries_adminhtml_entrypdf_new>
+		
+        <reference name="head">
+            <action method="addCss"><name>reea_entries.css</name></action>
+        </reference>
+		
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="reea_entries/adminhtml_entrypdf_edit_tabs" name="product_tabs"></block>
+            <block type="adminhtml/catalog_product_edit" name="product_edit"></block>
+        </reference>
+        <remove name="left" />
+        <reference name="left">
+		
+        </reference>
+        <reference name="js">
+            <block type="adminhtml/catalog_product_edit_js" template="catalog/product/js.phtml" name="catalog_product_js"></block>
+            <block type="core/template" template="catalog/wysiwyg/js.phtml"/>
+        </reference>
+        
+    </reea_entries_adminhtml_entrypdf_new>
+    
+    <reea_entries_adminhtml_index_changestockcode>
+    	<reference name="head">
+            <action method="addCss"><name>reea_entries.css</name></action>
+        </reference>
+    	<reference name="content">
+            <block type="core/template" name="stock.form" template="reea_entries/stock_form.phtml"></block>
+        </reference>
+    </reea_entries_adminhtml_index_changestockcode>
+
+</layout>

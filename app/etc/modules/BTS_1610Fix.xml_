@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <BTS_1610Fix>
+            <active>true</active>
+            <codePool>local</codePool>
+        </BTS_1610Fix>
+    </modules>
+</config>

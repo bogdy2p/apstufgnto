@@ -1,0 +1,80 @@
+<?php $_entries = $this->getEntriesList(); ?>
+<?php if (count($_entries)): ?>
+<ul class="email-entries-list">
+<?php foreach ($_entries as $_entry): ?>
+<li id="list_email_entry_<?php print $_entry->getId(); ?>">
+	<div class="image f-left"><?php if (!empty($_entry['image'])): ?><img src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $_entry['image'])->resize(50)->__toString(); ?>" /><?php endif; ?></div>
+	<div class="f-left"><i><?php print $this->__('Stock code:'); ?> <?php print $_entry->getSku(); ?></i><br /><span><?php print $_entry->getName(); ?></span></div>
+	<div class="f-right">
+		<button style="" onclick="Reea.EmailToAFriend.removeFromEmailEntriesListPopup(<?php print $_entry->getId(); ?>);" class="scalable" type="button" title="<?php print $this->__('Remove'); ?>" id=""><span><span><span><?php print $this->__('Remove'); ?></span></span></span></button>
+	</div>
+	<div class="clear"></div>
+<?php endforeach; ?>
+</ul>
+<form name="email_to_addresses_form" id="email_to_addresses_form-validate" action="<?php print $this->getUrl('*/adminhtml_emailtoafriend/sendPost'); ?>" method="post">
+<input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+<div class="form-element">
+	<p><?php print $this->__('Email Subject:'); ?></p>
+	<input type="text" name="subject" value="Antique Print & Map Room" class="input-text" />	
+</div>
+<div class="form-element">
+	<p><?php print $this->__('Email Message:'); ?></p>
+	<textarea type="text" name="message"></textarea>
+</div>
+<div class="form-element">
+<p><?php print $this->__('Email Address:'); ?></p>
+<ul class="email-entries-addresses">
+	<li><p class="f-left"><input type="text" name="entry_list_email_address[]" id="entry_list_email_address_0" class="input-text f-left validate-email required-entry" /></p><img class="f-left email-entries-list-remove" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" style="dsiplay: none;"/></li>
+</ul>
+</div>
+<br />
+<button style="" onclick="Reea.EmailToAFriend.addNewEmailAddress();" class="scalable" type="button" title="<?php print $this->__('Add another email address'); ?>" id=""><span><span><span><?php print $this->__('Add another email address'); ?></span></span></span></button>
+<button id="email_to_addresses_form_submit" style="" onclick="Reea.EmailToAFriend.form.submit();" class="scalable navigation" type="submit" title="<?php print $this->__('Send email'); ?>" id=""><span><span><span><?php print $this->__('Send email'); ?></span></span></span></button>
+</form>
+<?php else: ?>
+<h4><?php print $this->__('The list is empty'); ?></h4>
+<?php endif; ?>
+<script type="text/javascript">
+	
+$j(document).ready(function() {
+	
+	$j('img.email-entries-list-remove').live('click', function() {
+		$j(this).parent().remove();
+		$j('ul.email-entries-addresses li img').show();
+		
+		if ($j('ul.email-entries-addresses li').length == 1) {
+			$j('ul.email-entries-addresses li img').hide();
+		}
+		
+		$j.each($j('ul.email-entries-addresses li'), function(k, p_oLi) {
+			//$j('p:first', p_oLi).html((k + 1) + '.');
+			return true;
+		});
+		
+		$j('ul.email-entries-addresses li:first input:first').removeClass('required-entry').addClass('required-entry');
+		
+		return false;
+	});
+	
+	return false;
+});
+
+Reea.EmailToAFriend.form = new varienForm('email_to_addresses_form-validate');
+
+Reea.EmailToAFriend.form.submit = function() {
+	
+	if (Reea.EmailToAFriend.form.validator && Reea.EmailToAFriend.form.validator.validate()) {
+		//$j('#email_to_addresses_form_submit').attr('disabled', true);
+		return true;
+	}
+	return false;
+}
+
+Reea.EmailToAFriend.addNewEmailAddress = function() {
+	$j('ul.email-entries-addresses li img').show();
+	var l_iCount = $j('ul.email-entries-addresses li').length;
+	Reea.EmailToAFriend.counter++;
+	$j('ul.email-entries-addresses').append('<li><p class="f-left"><input type="text" name="entry_list_email_address[]" id="entry_list_email_address_' + Reea.EmailToAFriend.counter +'" class="input-text f-left validate-email" /></p><img class="f-left email-entries-list-remove" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" /></li>');
+	return false;
+};
+</script>

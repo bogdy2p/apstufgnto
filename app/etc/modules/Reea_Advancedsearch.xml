@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<Reea_Advancedsearch>
+			<active>true</active>
+			<codePool>local</codePool>
+		</Reea_Advancedsearch>
+	</modules>
+</config>

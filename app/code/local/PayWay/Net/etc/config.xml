@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   PayWay
+ * @package    PayWay_Net
+ * @author     Qvalent
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <modules>
+        <PayWay_Net>
+            <version>0.1.0</version>
+        </PayWay_Net>
+    </modules>
+    <frontend>
+        <routers>
+            <net>
+                <use>standard</use>
+                <args>
+                    <module>PayWay_Net</module>
+                    <frontName>net</frontName>
+                </args>
+            </net>
+        </routers>
+    </frontend>
+    <global>
+        <models>
+            <net>
+                <class>PayWay_Net_Model</class>
+                <resourceModel>net_mysql4</resourceModel>
+            </net>
+            <net_mysql4>
+                <class>PayWay_Net_Model_Mysql4</class>
+                <entities>
+                    <net>
+                        <table>net</table>
+                    </net>
+                </entities>
+            </net_mysql4>
+        </models>
+        <resources>
+            <net_setup>
+                <setup>
+                    <module>PayWay_Net</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </net_setup>
+            <net_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </net_write>
+            <net_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </net_read>
+        </resources>
+        <blocks>
+            <net>
+                <class>PayWay_Net_Block</class>
+            </net>
+        </blocks>
+        <helpers>
+            <net>
+                <class>PayWay_Net_Helper</class>
+            </net>
+        </helpers>
+    </global>
+    <default>
+        <payment>
+            <net>
+                <model>net/net</model>
+                <title>Credit Card (via PayWay Secure Payment)</title>
+                <payment_action>Sale</payment_action>
+                <line_items_enabled>1</line_items_enabled>
+                <biller_code />
+                <merchant_id>TEST</merchant_id>
+                <paypal_email>test@example.com</paypal_email>
+                <security_username />
+                <security_password />
+                <proxy_host />
+                <proxy_port />
+                <proxy_username />
+                <proxy_password />
+                <payway_url>https://www.payway.com.au/</payway_url>
+            </net>
+        </payment>
+    </default>
+</config>

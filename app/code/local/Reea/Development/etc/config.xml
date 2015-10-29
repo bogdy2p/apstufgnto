@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<config>
+	
+	<modules>
+		<Reea_Development>
+			<version>0.0.2</version>
+		</Reea_Development>
+	</modules>
+		
+	<global>
+		
+		<blocks>
+			<reea_development>
+				<class>Reea_Development_Block</class>
+			</reea_development>
+		</blocks>
+
+		<models>			
+			<reea_development>
+				<class>Reea_Development_Model</class>
+			</reea_development>
+		</models>
+
+		<helpers>
+			<reea_development>
+				<class>Reea_Development_Helper</class>
+			</reea_development>
+		</helpers>
+		
+		<events>
+			<prepare_catalog_product_index_select>
+				<observers>
+					<reea_development_prepare_catalog_product_index_select>
+						<class>reea_development/observer</class>
+						<method>prepare_catalog_product_index_select</method>
+					</reea_development_prepare_catalog_product_index_select>
+				</observers>
+			</prepare_catalog_product_index_select>
+			
+			<start_process_event_catalog_product_save>
+				<observers>
+					<reea_development_start_process_event_catalog_product_save>
+						<class>reea_development/observer</class>
+						<method>start_process_event_catalog_product_save</method>
+					</reea_development_start_process_event_catalog_product_save>
+				</observers>			
+			</start_process_event_catalog_product_save>
+		</events>
+		
+	</global>
+	
+	<frontend>
+		
+		<events>
+			<controller_action_layout_load_before>
+				<observers>
+					<reea_development_controller_action_layout_load_before>
+						<class>reea_development/observer</class>
+						<method>controller_action_layout_load_before</method>
+					</reea_development_controller_action_layout_load_before>
+				</observers>
+			</controller_action_layout_load_before>			
+			
+		</events>
+		
+		<layout>
+			<updates>
+				<reea_development>
+					<file>reea_development.xml</file>
+				</reea_development>
+			</updates>
+		</layout>
+		
+	</frontend>
+
+	
+</config>

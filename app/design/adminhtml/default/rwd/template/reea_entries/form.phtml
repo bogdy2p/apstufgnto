@@ -1,0 +1,999 @@
+<style type="text/css">
+	.form-element label,.assigned-categories-labels label{font-weight:bold;}
+	.fixed {width:115px;}
+</style>
+
+<?php
+$_categories = $this->getCategories();
+$_product = $this->getProduct();
+$_category_assignments = array();
+
+$framesetupAttribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'frame_setup');
+$framesetupAttributeArray = array();
+foreach ($framesetupAttribute->getSource()->getAllOptions(true, true) as $_option1) {
+	if ($_option1['value']) {
+		$framesetupAttributeArray[$_option1['value']] = $_option1['label'];
+	}
+}
+
+$_postageAttribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_postage');
+$_postageAttributeArray = array();
+foreach ($_postageAttribute->getSource()->getAllOptions(true, true) as $_option) {
+	if ($_option['value']) {
+		$_postageAttributeArray[$_option['value']] = $_option['label'];
+	}
+}
+
+
+$_postageAttribute2 = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_postage2');
+$_postageAttribute2Array = array();
+foreach ($_postageAttribute2->getSource()->getAllOptions(true, true) as $_option) {
+	if ($_option['value']) {
+		$_postageAttribute2Array[$_option['value']] = $_option['label'];
+	}
+}
+	
+if ($_product->getId()) {
+	$_category_assignments = Mage::helper('reea_entries')->getProductCategoryAssignments($_product->getId());
+}
+
+function field($p_aParams) {
+	global $_fields;
+	print $_fields[$p_aParams['name']]->toHtml();
+}
+	/*
+	 * $this 
+	 * 		-> Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Attributes
+	 * 		-> Mage_Adminhtml_Block_Catalog_Form
+	 * 		-> Mage_Adminhtml_Block_Widget
+	 * 
+	 * getForm() - returns:
+	 * 
+	 */
+	//pr(get_class($this));
+	//pr(get_class($this->getForm()));
+	
+	$l_oForm = $this->getForm();
+
+	//pr(array_keys($this->getData()));
+	//pr($this->getGroup()->getData());
+	//pr($this->getGroupAttributes());
+	
+	foreach ($this->getGroupAttributes() as $l_oAttribute) {
+		//pr(array_keys($l_oAttribute->getData()));
+		//pr($l_oAttribute->getAttributeCode());
+	}
+	
+	//$l_oFieldSet = $l_oForm->getElement('group_fields203');
+	
+	foreach ($l_oForm->getElements() as $l_oElement) {
+		if ($l_oElement instanceof Varien_Data_Form_Element_Fieldset) {
+			//pr(get_class($l_oElement));
+			$l_oFieldSet = $l_oElement;
+			//pr($l_oElement->getId());
+		}
+	}
+	
+	//die(get_class($l_oFieldSet));
+	
+	//pr(get_class($l_oFieldSet));
+	
+	// some custom field
+	
+	$l_oFields = $l_oFieldSet->getElements();
+	
+	$_fields = array();
+	
+	
+	foreach ($l_oFields as $l_mKey => $l_oField) {
+		$_fields[$l_oField->getId()] = $l_oField;
+		//$l_oField->setAfterElementHtml($l_oField->getName());
+		//$l_oField->setBeforeElementHtml($l_oField->getName());
+		
+		//pr('['. $l_mKey. ']: '. get_class($l_oField));
+//		pr(array_keys($l_oField->getData()));
+		
+		if (is_object($l_oField->getRenderer())) {
+			$l_oRender = $l_oField->getRenderer();
+			$l_oRender->setTemplate('reea_entries/element.phtml');
+		}
+		
+		//pr($l_oField->getId());
+		
+		//pr(get_class($l_oField->getRenderer()));
+		//pr('['. $l_mKey. ']: '. get_class($l_oField));
+		//pr($l_oField->toHtml());
+	}
+	$this->_formFields = $_fields;
+	
+//	pr(array_keys($_fields));
+//	print_r($_product->debug());
+	
+?>
+
+<div class="entry-edit">
+	<?php //echo get_class($this) ?>
+	
+	<?php //echo $this->getFormHtml(); //die;?>
+	<?php Varien_Profiler::start('form/toHtml'); ?>
+	<?php if ($useContainer = $l_oForm->getUseContainer()): ?>
+	<form <?php print $this->serialize($l_oForm->getHtmlAttributes()); ?>>
+		<div>
+			<?php if (strtolower($l_oForm->getData('method')) == 'post'): ?>
+				<input name="form_key" type="hidden" value="<?php print Mage::getSingleton('core/session')->getFormKey();?>" />
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
+	
+	<?php
+		foreach ($l_oForm->getElements() as $element) {
+			//pr(get_class($element));
+			//echo $element->toHtml();
+		}
+
+	?>
+	
+	<!-- START render the fieldset -->
+	
+	<?php $_element = $l_oFieldSet; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	<div id="<?php echo $_element->getFieldsetContainerId(); ?>">
+	<?php endif; ?>
+	<?php if ($_element->getLegend()): ?>
+	<div class="entry-edit-head">
+		<h4 class="icon-head head-edit-form fieldset-legend"><?php echo $_element->getLegend() ?></h4>
+		<div class="form-buttons"><?php echo $_element->getHeaderBar() ?></div>
+	</div>
+	<?php endif; ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		<div class="fieldset <?php echo $_element->getClass() ?>" id="<?php echo $_element->getHtmlId() ?>">
+	<?php endif; ?>
+		<div>
+			<?php if ($_element->getComment()): ?>
+				<p class="comment"><?php echo $this->escapeHtml($_element->getComment()) ?></p>
+			<?php endif; ?>
+			<?php if ($_element->hasHtmlContent()): ?>
+				<?php echo $_element->getHtmlContent(); ?>
+			<?php else: ?>
+			<table cellspacing="0" class="<?php echo $_element->hasTableClass() ? $_element->getTableClass() : 'form-list'?>">
+				<tbody>
+					<tr>
+						<td>
+<!-- LEFT
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+							<div style="width: 55%" class="f-left">
+								<ul class="entry-details f-right left-side">
+									<li class="form-checkboxes">
+										<?php 
+										if($_product->getStatus()==1 && $_product->getId()){
+											echo $_fields['status']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['status']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<?php 
+										if($_product->getEntryIsSold()==1){
+											echo $_fields['entry_is_sold']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['entry_is_sold']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<?php 
+										if($_product->getEntryHide()==1){
+											echo $_fields['entry_hide']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['entry_hide']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<?php
+										if($_product->getEntryIsFeatured()==1){
+											echo $_fields['entry_is_featured']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['entry_is_featured']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<?php
+										if($_product->getPrintedFeature()==1){
+											echo $_fields['printed_feature']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['printed_feature']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<?php
+										if($_product->getEntryOnHold()==1) {
+											echo $_fields['entry_on_hold']->setExtraCssClass('f-left')->setChecked('checked')->toHtml();
+										} else {
+											echo $_fields['entry_on_hold']->setExtraCssClass('f-left')->toHtml();
+										}
+										?>
+										<div class="hide">
+											<?php 
+												echo $_fields['entry_on_hold_client_id']->setExtraCssClass('f-left')->toHtml();
+												echo $_fields['entry_on_hold_client_details']->setExtraCssClass('f-left')->toHtml();
+											?>
+										</div>
+										<div id="entry-on-hold-dialog-form" title="Customer - Entry on hold">
+											<?php 
+												if($_product->getEntryOnHoldClientDetails()) {
+													$onHoldClientDetails = explode("|", $_product->getEntryOnHoldClientDetails());
+												}
+												$onHoldCientId = $_product->getEntryOnHoldClientId();
+												$onHoldFirstName = isset($onHoldClientDetails[0]) ? $onHoldClientDetails[0] : "";
+												$onHoldLastName = isset($onHoldClientDetails[1]) ? $onHoldClientDetails[1] : "";
+												$onHoldPhoneNumber = isset($onHoldClientDetails[2]) ? $onHoldClientDetails[2] : "";
+												$onHoldDate = isset($onHoldClientDetails[3]) ? $onHoldClientDetails[3] : "";
+											?>
+											<p class="entry-on-hold-text">Please fill the fields bellow.</p>
+											<form>
+												<li class="hide">
+													<label for="client-id">Id <em>*</em></label>
+													<input type="text" name="client-id" id="on-hold-client-id" value="<?php echo $onHoldCientId; ?>" class="text ui-widget-content ui-corner-all" />
+												</li>
+												<li>
+													<label for="first-name">First Name <em>*</em></label>
+													<input type="text" name="first-name" id="on-hold-first-name" value="<?php echo $onHoldFirstName; ?>" class="text ui-widget-content ui-corner-all" />
+												</li>
+												<li>
+													<label for="last-name">Last Name <em>*</em></label>
+													<input type="text" name="last-name" id="on-hold-last-name" value="<?php echo $onHoldLastName; ?>" class="text ui-widget-content ui-corner-all" />
+												</li>
+												<li>
+													<label for="phone-number">Phone Number</label>
+													<input type="text" name="phone-number" id="on-hold-phone-number" value="<?php echo $onHoldPhoneNumber; ?>" class="text ui-widget-content ui-corner-all" />
+												</li>
+												<li>
+													<label for="date-on-hold">Date put on hold <em>*</em></label>
+													<input type="date-on-hold" name="date-on-hold" id="on-hold-date" value="<?php echo $onHoldDate; ?>" class="text ui-widget-content ui-corner-all" />
+												</li>
+												<input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
+											</form>
+											<p class="entry-on-hold-validation-tips"><em>*</em> required field</p>
+										</div>
+										<div style="clear: both;"></div>
+										<script type="text/javascript">
+											var onHoldClientDetailsFn = <?php print json_encode(Mage::helper('reea_entries')->getCustomerOnHoldDetails("firstname")); ?>;
+											var onHoldClientDetailsLn = <?php print json_encode(Mage::helper('reea_entries')->getCustomerOnHoldDetails("lastname")); ?>;
+											$j(document).ready(function(){
+												$j('#on-hold-first-name').autocomplete({
+													minLength: 0,
+													source: onHoldClientDetailsFn,
+													select: function(event, ui) {
+														$j('#on-hold-client-id').val(ui.item.id);
+														$j('#on-hold-last-name').val(ui.item.lastname);
+														$j('#on-hold-phone-number').val(ui.item.telephone);
+													},
+													open: function(event, ui) {
+														$j('#on-hold-client-id').val("");
+													}
+												});
+												$j('#on-hold-last-name').autocomplete({
+													minLength: 0,
+													source: onHoldClientDetailsLn,
+													select: function(event, ui) {
+														$j('#on-hold-client-id').val(ui.item.id);
+														$j('#on-hold-first-name').val(ui.item.firstname);
+														$j('#on-hold-phone-number').val(ui.item.telephone);
+													},
+													open: function(event, ui) {
+														$j('#on-hold-client-id').val("");
+													}
+												});
+												$j('#on-hold-first-name, #on-hold-last-name').change(function(){
+													$j('#on-hold-client-id').val("");
+												});
+											});
+										</script>
+									    <div style="clear: both;"></div>
+									</li>
+                                                
+									<li>
+                                        <?php echo $_fields['sku']->setExtraCssClass('hide')->toHtml(); ?>
+										<?php echo $_fields['stock_number']->setExtraCssClass('f-left select textalign-left')->toHtml(); ?>
+										<?php echo $_fields['product_cost_code']->setExtraCssClass('f-left select textalign-right')->toHtml(); ?>
+										<?php echo $_fields['product_location']->setExtraCssClass('f-left select textalign-right')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['price']->setExtraCssClass('f-left select textalign-left')->toHtml(); ?>
+										<?php echo $_fields['product_lpk']->setExtraCssClass('f-left select textalign-right')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['entry_date']->setExtraCssClass('f-left date')->toHtml(); ?>
+										<?php echo $_fields['entry_date2']->setExtraCssClass('f-left date hide-label')->toHtml(); ?>
+                                        <?php echo $_fields['entry_batch_id']->setExtraCssClass('f-left select textalign-right')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+                                    
+									<li>
+										<?php echo $_fields['name']->setExtraCssClass('title')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+
+									<li>
+										<div style="clear:both;height:5px;"></div>
+									</li>
+									
+									<li>
+										<div class="f-left div-radio">
+											<input class="f-left radio" type="radio" name="choose_author_artist" value="author" <?php echo trim($_product->getEntryAuthor()) ? 'checked':''?>>
+											<label class="label-radio" for="frame_setup_Framed">Author</label>
+											<input class="f-left radio" type="radio" name="choose_author_artist" value="artist"  <?php echo trim($_product->getEntryArtist()) ? 'checked':(trim($_product->getEntryAuthor()) ? '':'checked'); ?>>
+											<label class="label-radio" for="frame_setup_Matted">Artist</label>
+										</div>
+										<div class="artist f-left" style="display:<?php echo trim($_product->getEntryArtist()) ? 'block':(trim($_product->getEntryAuthor()) ? 'none':'block'); ?>;">
+											<?php echo $_fields['entry_artist']->setExtraCssClass('f-left name')->setHideLabel(true)->toHtml(); ?>
+											<?php echo $_fields['entry_artist_from_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setBeforeElementHtml('(')
+														->setAfterElementHtml('-')
+														->toHtml(); ?>	
+
+											<?php echo $_fields['entry_artist_to_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setAfterElementHtml(')')
+														->toHtml(); ?>
+											<div style="clear: both;"></div>
+										</div>
+										<div class="author f-left" style="display:<?php echo trim($_product->getEntryAuthor())?'block' : 'none'?>;">
+											<?php echo $_fields['entry_author']->setExtraCssClass('f-left name')->setDisabled(true)->setHideLabel(true)->toHtml(); ?>
+											<?php echo $_fields['entry_author_from_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setDisabled(true)
+														->setBeforeElementHtml('(')
+														->setAfterElementHtml('-')
+														->toHtml(); ?>	
+
+											<?php echo $_fields['entry_author_to_year']
+														->setExtraCssClass('f-left date  narrow')
+														->setHideLabel(true)
+														->setDisabled(true)
+														->setAfterElementHtml(')')
+														->toHtml(); ?>
+										</div>
+										<div class="engraver f-left">
+											<?php echo $_fields['entry_engraver']->setExtraCssClass('f-left name textalign-right')->toHtml(); ?>
+											<?php echo $_fields['entry_engraver_from_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setBeforeElementHtml('(')
+														->setAfterElementHtml('-')
+														->toHtml(); ?>	
+
+											<?php echo $_fields['entry_engraver_to_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setAfterElementHtml(')')
+														->toHtml(); ?>
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['entry_mapmaker']->setExtraCssClass('f-left name textalign-left')->toHtml(); ?>
+										<div>
+											<?php echo $_fields['entry_mapmaker_from_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setBeforeElementHtml('(')
+														->setAfterElementHtml('-')
+														->toHtml(); ?>
+
+											<?php echo $_fields['entry_mapmaker_to_year']
+														->setExtraCssClass('f-left date narrow')
+														->setHideLabel(true)
+														->setAfterElementHtml(')')
+														->toHtml(); ?>
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['entry_condition']->setExtraCssClass('condition')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+						
+									<li>
+										<?php 
+										$attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+										$entry_technique = $attribute->getSource()->getOptionText($_fields['entry_technique']->getValue());?>
+										<div class="form-element technique">
+											<label for="name">Technique</label>
+											<input type="text" class="input-text" value="<?php print $entry_technique;?>" name="product[entry_technique]" id="entry_technique">
+											<div style="clear: both"></div>
+										</div>
+										<div style="clear: both;"></div>
+										<script type="text/javascript">
+											var techniques = <?php print json_encode(Mage::helper('reea_entries')->getAvailabelTechniques()); ?>;
+											$j(document).ready(function(){
+												$j('#entry_technique').autocomplete({
+													source: techniques
+												});
+											});
+										</script>
+									</li>
+									
+									<li>
+										<div style="clear:both;height:5px;"></div>
+									</li>
+                                    
+									<li>
+										<div class="div-size">
+											<?php echo $_fields['entry_image_size_width']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size first')
+														->setBeforeElementHtml($this->__('Image size: H'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+											<?php echo $_fields['entry_image_size_height']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('W'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+										</div>
+										<div class="div-size">
+											<?php echo $_fields['entry_paper_size_width']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('Paper size: H'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+											<?php echo $_fields['entry_paper_size_height']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('W'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+										</div>
+										<div class="div-size">
+											<?php echo $_fields['entry_plate_mark_size_width']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('Plate size: H'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+											<?php echo $_fields['entry_plate_mark_size_height']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('W'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+										</div>
+										<div class="div-size">
+											<?php echo $_fields['entry_frame_size_width']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('Frame size: H'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+											<?php echo $_fields['entry_frame_size_height']
+														->setHideLabel(true)
+														->setExtraCssClass('f-left size')
+														->setBeforeElementHtml($this->__('W'))
+														->setAfterElementHtml('<span class="subscript">mm</span>')
+														->toHtml(); ?>
+										</div>
+									</li>
+									
+									<li>
+										<div style="clear:both;height:10px;"></div>
+									</li>
+									
+									<li>
+										<div class="frame_setup">
+											<?php foreach ($framesetupAttributeArray as $option_id=>$option_label): ?>
+												<div class="f-left frame-setup-element textalign-right">
+													<label for="frame_setup_<?php print $option_label; ?>"><?php print $option_label; ?></label>
+													<input type="radio" <?php print ($_product->getFrameSetup() == $option_id)?'checked':''; ?> name="product[frame_setup]" value="<?php print $option_id; ?>" />
+												</div>
+											<?php endforeach; ?>
+										</div>
+										<div class="postage-block">
+											<!--<label class="postage red"><?php // print $this->__('Postage'); ?>&nbsp;<span class="red"><?php // print $this->__('WARNING: This is the postage size not the image size!'); ?></span></label>-->
+											<div class="entry-postage-container">
+												<div class="form-element f-left textalign-right">
+													<label class="label-entry_postage red" for="entry_postage"><?php print $this->__('Postage'); ?></label>
+													<select class="select-entry-postage" id="entry_postage" name="product[entry_postage]">
+														<option value=""><?php print $this->__('please select'); ?></option>
+														<?php $i=0;?>
+														<?php foreach ($_postageAttributeArray as $_postage_id => $_postage_label): ?>
+															<option data-postage="<?php print ($this->__('Other') == $_postage_label) ? "" : substr($_postage_label, strpos($_postage_label, "|")+1) ; ?>" value="<?php print $_postage_id; ?>" <?php print ($_product->getEntryPostage() == $_postage_id)?'selected':''; ?>><?php print ($this->__('Other') == $_postage_label) ? 'Other' : ++$i . ". " . substr($_postage_label, 0, strpos($_postage_label, "|")); ?></option>
+														<?php endforeach; ?>
+													</select>
+													<br />
+													<?php $_display_entry_custom_postage = false; ?>
+													<?php if ($_product->getEntryPostage() && $this->__('Other') == $_postageAttributeArray[$_product->getEntryPostage()]): ?>
+														<?php $_display_entry_custom_postage = true; ?>
+													<?php endif; ?>
+													<input style="display: <?php print $_display_entry_custom_postage?'':'none'; ?>" class="<?php print $_display_entry_custom_postage?'required-entry':''; ?> input-text" type="text" id="entry_custom_postage" name="product[entry_custom_postage]" value="<?php print $_product->getEntryCustomPostage(); ?>" />
+												</div>
+											</div>
+											<div>
+												<?php echo $_fields['width']
+													->setExtraCssClass('f-left size')
+													->setHideLabel(true)
+													->setBeforeElementHtml($this->__('W'))
+													->setAfterElementHtml('<span class="subscript">cm</span>')
+													->toHtml(); ?>
+												<?php echo $_fields['length']
+													->setExtraCssClass('f-left size')
+													->setHideLabel(true)
+													->setBeforeElementHtml($this->__('L'))
+													->setAfterElementHtml('<span class="subscript">cm</span>')
+													->toHtml(); ?>
+												<?php echo $_fields['height']
+													->setExtraCssClass('f-left size')
+													->setHideLabel(true)
+													->setBeforeElementHtml($this->__('H'))
+													->setAfterElementHtml('<span class="subscript">cm</span>')
+													->toHtml(); ?>
+												<?php echo $_fields['weight']
+													->setExtraCssClass('f-left size')
+													->setHideLabel(true)
+													->setBeforeElementHtml($this->__('kg = '))
+													->toHtml(); ?>
+											</div>
+											<div class="entry-postage-container unmatted-postage" style="<?php echo in_array($_product->getFrameSetup(),array('1663','263'))?'display:block;':'display:none;'?>">
+												<div class="form-element f-left textalign-right">
+													<label class="label-entry_postage red" for="entry_postage"><?php print $this->__('Tube'); ?></label>
+													<select class="select-entry-postage2" id="entry_postage2" name="product[entry_postage2]">
+														<option value=""><?php print $this->__('please select'); ?></option>
+														<?php $i=0;?>
+														<?php foreach ($_postageAttribute2Array as $_postage_id => $_postage_label): ?>
+															<option data-postage="<?php print substr($_postage_label, strpos($_postage_label, "|")+1) ; ?>" value="<?php print $_postage_id; ?>" <?php print ($_product->getEntryPostage2() == $_postage_id)?'selected':''; ?>><?php print $_postage_label; ?></option>
+														<?php endforeach; ?>
+													</select>
+												</div>
+											</div>
+										</div>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<div style="clear:both;height:10px;"></div>
+									</li>
+									            
+									<li>
+										<div class="">
+											<?php
+												$_number_of_default_categories = 3;
+												$_number_of_assigned_categories = count($_product->getCategoryIds());
+												$_assigned_category_ids = $_product->getCategoryIds();
+												//pr($_number_of_assigned_categories);
+												//pr($_entry->getCategoryIds());
+												$_number_of_dropdowns_to_render = max($_number_of_default_categories, $_number_of_assigned_categories);
+											?>
+											<div class="assigned-categories-labels">
+												<label class="catalog red" ><?php print $this->__('CATEGORY / CATALOGUE'); ?></label>
+												<label class="subject red"><?php print $this->__('SUBJECT'); ?></label>
+												<label class="subsubject red"><?php print $this->__('SUB-SUBJECT'); ?></label>
+											</div>
+											<div class="clear"></div>
+											<ul class="assigned-to-categories">
+												<?php for ($i = 0; $i < $_number_of_dropdowns_to_render; $i++): ?>
+													<?php if (isset($_assigned_category_ids[$i])): ?>
+														<?php $_assiged_category_id = $_assigned_category_ids[$i]; ?>
+													<?php else: ?>
+														<?php $_assiged_category_id = null; ?>
+													<?php endif; ?>
+													<li>
+														<span class="f-left"><?php print ($i + 1);?>.</span>
+														<img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />
+														<select class="f-left" id="assigned_category_id_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][id]">
+															<option value=""><?php print $this->__('please select'); ?></option>
+															<?php foreach ($_categories as $_category_id => $_category_name): ?>
+																<option value="<?php print $_category_id; ?>" <?php print ($_assiged_category_id == $_category_id)?'selected':''; ?>><?php print $_category_name; ?></option>
+															<?php endforeach; ?>
+														</select>
+														<input class="f-left input-text" type="text" id="assigned_category_subject_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][subject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subject']:''; ?>" />
+														<input class="f-left input-text" type="text" id="assigned_category_subsubject_<?php print $i; ?>" name="assigned_category[<?php print $i; ?>][subsubject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subsubject']:''; ?>" />
+														<div class="clear"></div>
+													</li>
+												<?php endfor; ?>
+											</ul>
+											<div class="image-buttons catalogue">
+												<button style="" class="scalable" type="button" title="Link another catalgoue" id="set_catalogues"><span><span><span>Link another catalogue</span></span></span></button><div class="clear"></div>
+											</div>
+											<?php 
+												/*echo $this->getLayout()->createBlock(
+														'adminhtml/catalog_product_edit_tab_categories',
+														'product.categories'
+												)
+												->setTemplate('reea_entries/tab/categories.phtml')
+												->toHtml(); */
+											?>
+											<div style="clear: both;"></div>
+										</div>
+									</li>
+								</ul>
+							</div>
+
+<!-- RIGHT
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+							<div style="width: 45%" class="f-right">
+								<ul class="entry-details f-left right-side">
+									<li>
+										<?php echo $_fields['description']
+											->setExtraCssClass('f-left description')
+											->toHtml(); 
+										?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php if (isset($_fields['short_description'])) {echo $_fields['short_description']
+											->setExtraCssClass('f-left description')
+											->toHtml();} ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<table><?php print $_fields['media_gallery']->toHtml(); ?></table>
+									</li>
+									
+									<li>
+										<?php // $testing = Mage::app()->getLayout()->createBlock('productupload/productupload');
+
+//                                                                                if($testing == false){
+//                                                                                    echo " <h3>COULD NOT CREATE THE <br> PRODUCTUPLOAD/PRODUCTUPLOAD<br> BLOCK HERE</h3> <br> (app/design/adminhtml/default/rwd/template/reea_entries/form.phtml) <br><br>";
+//                                                                                } else {
+//                                                                                    echo Mage::app()->getLayout()->createBlock('productupload/productupload')->setTemplate('productupload/content.phtml')->toHtml();
+//                                                                                }
+                                                                                ?>
+                                                                            
+                                                                                <?php  echo Mage::app()->getLayout()->createBlock('productupload/productupload')->setTemplate('productupload/content.phtml')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php echo $_fields['entry_catalogue_number']->setExtraCssClass('f-left textalign-left')->toHtml(); ?>
+										<?php echo $_fields['meta_title']->setExtraCssClass('f-left textalign-right')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['meta_keyword']->setExtraCssClass('f-left meta-keyword textalign-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									<li>
+										<?php echo $_fields['meta_description']->setExtraCssClass('f-left meta-description textalign-left')->toHtml(); ?>
+										<div style="clear: both;"></div>
+									</li>
+									
+									<li>
+										<?php 
+											print $this->getLayout()->createBlock(
+												'adminhtml/catalog_product_edit_tab_websites',
+												'product.websites'
+											)
+											->setTemplate('reea_entries/tab/websites.phtml')
+											->toHtml(); 
+										?>									
+									</li>
+								</ul>
+							</div>
+							<div style="clear: both"></div>
+						</td>
+					</tr>
+					
+					<?php //echo $_element->getChildrenHtml(); ?>
+					<?php foreach ($_fields as $_field): ?>
+						<?php if ($_field->getRequired()): ?>
+						<?php //print $_field->toHtml(); ?>
+						<?php endif; ?>
+					<?php endforeach; ?>
+					
+					<?php //print $_fields['tax_class_id']->toHtml(); ?>
+					
+					<?php //print $_fields['tax_class_id']->toHtml(); ?>
+					<?php //print $_fields['sku']->toHtml(); ?>
+					<?php //print $_fields['status']->toHtml(); ?>
+					<?php //print $_fields['weight']->toHtml(); ?>
+					<?php //print $_fields['media_gallery']->toHtml(); ?>
+					
+					<!--
+					<div class="" style="width: 45%">
+						<?php 
+							/*$this->getLayout()->createBlock(
+								'adminhtml/catalog_product_edit_tab_categories',
+								'product.categories'
+							)
+							->setTemplate('reea_entries/tab/categories.phtml')
+							->toHtml(); */
+						?>
+						<div style="clear: both;"></div>
+					</div>
+					<div class="" style="width: 45%">
+						<?php 
+							/*$this->getLayout()->createBlock(
+								'adminhtml/catalog_product_edit_tab_websites',
+								'product.websites'
+							)
+							->setTemplate('reea_entries/tab/websites.phtml')
+							->toHtml(); */
+						?>
+						<div style="clear: both;"></div>
+					</div>-->
+					
+				</tbody>
+			</table>
+			<?php endif; ?>
+		</div>
+		<?php echo $_element->getSubFieldsetHtml() ?>
+	<?php if (!$_element->getNoContainer()): ?>
+		</div>
+	<?php endif; ?>
+	<?php if ($_element->getFieldsetContainerId()): ?>
+	</div>
+	<?php endif; ?>
+	
+	<!-- END render the fieldset -->	
+	
+	<?php if ($useContainer): ?>
+	</form>
+	<?php endif; ?>
+	<?php Varien_Profiler::stop('form/toHtml'); ?>
+</div>
+<?php echo $this->getChildHtml('form_after');?>
+<script type="text/javascript">
+$j(document).ready(function() {
+	
+	$j('.frame-setup-element input').click(function(){
+		if($j(this).val()=='263' || $j(this).val()=='1663'){
+			$j('.unmatted-postage').show();
+		}else{
+			$j('#entry_postage2').val('');
+			$j('.unmatted-postage').hide();
+		}
+	});
+	
+	$j('button#set_catalogues').click(function () {
+		
+		var l_oUL = $j('ul.assigned-to-categories');
+		var l_iNumberOfLIs = $j('li', l_oUL).length;
+		
+		// generate a new category selection item
+		
+		var l_sItemHTML = '<li>' + 
+				'<span class="f-left">' + (l_iNumberOfLIs + 1) + '.</span>' +
+				'<img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />' + 
+				'<select class="f-left" id="assigned_category_id_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][id]">' + 
+					'<option value=""><?php print $this->__('please select'); ?></option>' + 
+					<?php foreach ($_categories as $_category_id => $_category_name): ?>
+					'<option value="<?php print $_category_id; ?>"><?php print addslashes($_category_name); ?></option>' + 
+					<?php endforeach; ?>
+				'</select>' + 
+				'<input class="f-left input-text" type="text" id="assigned_category_subject_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][subject]" value="" />' +
+				'<input class="f-left input-text" type="text" id="assigned_category_subsubject_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + (l_iNumberOfLIs + 1) + '][subsubject]" value="" />' +
+				'<div class="clear"></div>' +
+			'</li>';
+			
+		l_oUL.append(l_sItemHTML);
+		
+		return false;
+	});
+	
+	$j('ul.assigned-to-categories li img').live('click', function() {
+		var l_oUL = $j(this).parent().parent();
+		$j(this).parent().remove();
+		var l_iCount = 1;
+		//console.log(l_oUL);
+		//console.log($j('span', l_oUL));
+		$j.each($j('span', l_oUL), function(k, p_oSPAN) {
+			$j(p_oSPAN).html(l_iCount + '.');
+			l_iCount++;
+			return true;
+		});
+		return true;
+	});
+	
+	/*$j('div.entry-postage-container ul li input[type=radio]').click(function() {
+		if ($j(this).hasClass('other')) {
+			//$j('#entry_custom_postage').val('').addClass('required-entry').show();
+		}
+		else {
+			//$j('#entry_custom_postage').val('').removeClass('required-entry').hide();
+		}
+		return true;
+	});*/
+	
+	
+	$j('.select-entry-postage2').change(function(){
+		var label = $j(this).find('option:selected').text();
+		var sizes = label.split("*");
+		if(sizes.length>1){
+			var width = sizes["0"].substr(sizes["0"].indexOf(".")+1)/10;
+			var length = sizes["1"]/10;
+			var height = sizes["2"]/10;
+			
+			$j("#width").val(width);
+			$j("#length").val(length);
+			$j("#height").val(height);
+		} else {
+			$j("#width").val("");
+			$j("#length").val("");
+			$j("#height").val("");
+		}
+		
+		var weight = $j(this).find('option:selected').data('postage');
+		if(weight) {
+			$j("#weight").val(weight);	
+		} else {
+			$j("#weight").val("");
+		}
+	});
+	
+	$j('.select-entry-postage').change(function() {
+//		console.log($j(this).next().text());
+		var label = $j(this).find('option:selected').text();
+		var sizes = label.split("*");
+		console.log(sizes);
+		if(sizes.length>1){
+			var width = sizes["0"].substr(sizes["0"].indexOf(".")+1)/10;
+			var length = sizes["1"]/10;
+			var height = sizes["2"]/10;
+			
+			$j("#width").val(width);
+			$j("#length").val(length);
+			$j("#height").val(height);
+//			var weight = width*length*height/6000;
+		} else {
+			$j("#width").val("");
+			$j("#length").val("");
+			$j("#height").val("");
+		}
+		
+		var weight = $j(this).find('option:selected').data('postage');
+		if(weight) {
+			$j("#weight").val(weight);	
+		} else {
+			$j("#weight").val("");
+		}
+	});
+	
+	$j('#status').change(function(){
+		if($j('#media_gallery_content_grid').find('tr.preview').length==0){
+			$j('#status').prop('checked', false);
+			alert("Please add at least one image.");	
+		}
+	});
+	
+	$j('#entry_hide').change(function(){
+		if($j('#entry_is_sold').prop('checked')==false){
+			$j(this).prop('checked', false);
+		}
+	});
+
+	// if($j('#entry_artist_from_year').val() == "") {
+		// $j('#entry_artist_to_year').prop('disabled', true);
+	// }
+	// $j('#entry_artist_from_year').change(function(){
+		// if($j('#entry_artist_from_year').val() == "") {
+			// $j('#entry_artist_to_year').prop('disabled', true);
+		// } else {
+			// $j('#entry_artist_to_year').prop('disabled', false);
+		// }
+	// });
+	// if($j('#entry_author_from_year').val() == "") {
+		// $j('#entry_author_to_year').prop('disabled', true);
+	// }
+	// $j('#entry_author_from_year').change(function(){
+		// if($j('#entry_author_from_year').val() == "") {
+			// $j('#entry_author_to_year').prop('disabled', true);
+		// } else {
+			// $j('#entry_author_to_year').prop('disabled', false);
+		// }
+	// });
+	// if($j('#entry_engraver_from_year').val() == "") {
+		// $j('#entry_engraver_to_year').prop('disabled', true);
+	// }
+	// $j('#entry_engraver_from_year').change(function(){
+		// if($j('#entry_engraver_from_year').val() == "") {
+			// $j('#entry_engraver_to_year').prop('disabled', true);
+		// } else {
+			// $j('#entry_engraver_to_year').prop('disabled', false);
+		// }
+	// });
+	// if($j('#entry_mapmaker_from_year').val() == "") {
+		// $j('#entry_mapmaker_to_year').prop('disabled', true);
+	// }
+	// $j('#entry_mapmaker_from_year').change(function(){
+		// if($j('#entry_mapmaker_from_year').val() == "") {
+			// $j('#entry_mapmaker_to_year').prop('disabled', true);
+		// } else {
+			// $j('#entry_mapmaker_to_year').prop('disabled', false);
+		// }
+	// });
+	        
+	// Product on hold for customer.
+	$j( "#entry-on-hold-dialog-form" ).dialog({
+		autoOpen: false,
+		height: 320,
+		width: 360,
+		modal: true,
+		buttons: {
+			Save: function(){
+				var firstname = $j("#on-hold-first-name");
+				var lastname = $j("#on-hold-last-name");
+				var phonenumber = $j("#on-hold-phone-number");
+				var date = $j("#on-hold-date");
+				var valid = true;
+				$j("#entry-on-hold-dialog-form input").removeClass("ui-state-error");
+
+				if( firstname.val() == ""){
+					firstname.addClass("ui-state-error");
+					valid = false;
+				}
+				if( lastname.val() == ""){
+					lastname.addClass("ui-state-error");
+					valid = false;
+				}
+				if( date.val() == ""){
+					date.addClass("ui-state-error");
+					valid = false;
+				}
+
+				if(valid == true) {
+					var serialized_details = firstname.val() + "|" + lastname.val() + "|" + phonenumber.val() + "|" + date.val();
+					$j("#entry_on_hold_client_id")
+						.val($j("#on-hold-client-id").val());
+					$j("#entry_on_hold_client_details")
+						.val(serialized_details);
+					$j(this).dialog( "close" );
+				}
+			},
+			Cancel: function() {
+				if ($j("#entry_on_hold_client_details").val() == "") {
+					$j("#entry-on-hold-dialog-form input").val("");
+					$j("#entry_on_hold").prop("checked", false);
+				}
+				$j(this).dialog( "close" );
+			} 
+		}
+	});
+
+	$j('#entry_on_hold').change(function() {
+		if($j(this).prop('checked') == true) {
+			$j( "#on-hold-date" ).datepicker();
+			$j( "#entry-on-hold-dialog-form" ).dialog("open");
+		}
+	});
+	$j("#form-save-duplicate-button, #form-save-button, #form-save-edit-button").click(function(){
+		if($j("#entry_on_hold").prop('checked') != true) {
+			$j("#entry_on_hold_client_id").val("");
+			$j("#entry_on_hold_client_details").val("");
+		}
+	});
+
+	$j('input[name=choose_author_artist]').change(function(){
+		$j('.artist,.author').hide();
+		if($j(this).val()=='artist'){
+			$j('.artist').show();
+			//$j('#entry_author,#entry_author_from_year,#entry_author_to_year').val('');
+			$j('.artist').find('input').prop('disabled', false);
+			$j('.author').find('input').prop('disabled', true);
+		}else{
+			$j('.author').show();
+			$j('.author').find('input').prop('disabled', false);
+			$j('.artist').find('input').prop('disabled', true);
+			//$j('#entry_artist,#entry_artist_from_year,#entry_artist_to_year').val('');
+		}
+	});
+});
+$j(function(){
+    var tabindex = 1;
+    $j('input,select,textarea').each(function() {
+        if (this.type != "hidden" && this.id!='') {
+            var $input = $j(this);
+            $input.attr("tabindex", tabindex);
+            tabindex++;
+        }
+    });
+});
+</script>

@@ -1,0 +1,81 @@
+button.navigation {
+	background: url("images/btn__blue_bg.jpg") repeat-x scroll 0 100% #FFAC47;
+	border: 1px solid blue;
+}
+
+button.navigation:hover {
+	background: url("images/btn__blue__over_bg.jpg") repeat-x scroll 0 100% #FFAC47;
+}
+
+button.navigation a {
+	text-decoration: none;
+	color: #ffffff;
+}
+
+button.delete a {
+	text-decoration: none;
+	color: #ffffff;
+}
+
+
+#multipleEntriesGrid .field-100{
+    /*width:250px;*/
+    width:200px;
+}
+
+.massaction a{
+	font-size:14px;
+	color:blue;
+}
+
+.massaction a:hover{
+	text-decoration:underline;
+	color:blue;
+}
+
+.massaction .entry-edit .field-row label,.massaction .entry-edit .field-row select{
+	font-size:14px;
+}
+
+#productGrid_massaction-form select{
+	width:200px;
+}
+
+.custom-filter .field-100,.custom-filter button{
+	float:left;
+}
+
+.custom-filter button{
+	margin-left:10px;
+}
+#email_to_addresses_form-validate .form-element{
+	margin:10px 0px 10px 0px;
+}
+
+#email_to_addresses_form-validate .form-element input{
+	width:466px;
+	height: 20px;
+}
+
+#email_to_addresses_form-validate .form-element input.validate-email{
+	width:430px;
+	height: 20px;
+}
+
+#email_to_addresses_form-validate .form-element textarea{
+	width:466px;
+	height: 150px;
+	font: 12px arial, helvetica, sans-serif;
+}
+
+ul.email-entries-addresses li{
+	padding:0px;
+}
+
+ul.email-entries-addresses li input{
+	margin:0px !important;
+}
+
+#email_to_addresses_form-validate p{
+	margin:0px;
+}

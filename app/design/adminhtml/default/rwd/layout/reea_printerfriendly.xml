@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout>
+	
+	<entry_print>
+		<block type="adminhtml/template" name="root" output="toHtml" template="reea_printerfriendly/print.phtml"></block>
+	</entry_print>
+	
+</layout>

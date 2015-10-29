@@ -1,0 +1,29 @@
+<div class="content-header">
+	<table cellspacing="0">
+		<tr>
+        	<td style="width:50%;"><h3 class="icon-head head-products">Manage Entries Stocks</h3></td>
+        	<td class="a-right"><button id="id_f39352ef9b97abea93b7128f42cd4344" title="Add Product" type="button" class="scalable add" onclick="$('stock_form').submit();" style=""><span><span><span>Save Entries Stocks</span></span></span></button></td>
+		</tr>
+	</table>
+</div>
+<form action="<?php print Mage::helper('adminhtml')->getUrl('reea_entries/adminhtml_index/savestockcode');?>;?>" name="stock_form" id="stock_form">
+<input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+<table cellspacing="0" cellpadding="0" border="0">
+	<?php foreach($this->getProductsIds() as $value){
+		$product = Mage::getModel('catalog/product')->load($value);	
+	?>
+	<tr>
+		<td valign="middle">
+			<div class="form-element name">
+				<label for="entry_mapmaker"><?php echo $product->getName();?></label>
+			</div>
+		</td>
+		<td valign="middle">
+			<div class="form-element name">
+				<input type="text" class="input-text" name="sku[<?php echo $product->getId();?>]" value="<?php echo $product->getStockNumber();?>" />
+			</div>
+		</td>
+	</tr>
+	<?php } ?>
+</table>
+</form>

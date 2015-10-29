@@ -1,0 +1,193 @@
+<html>
+<head>
+<?php 
+	$_entry = Mage::registry('printed_entry');
+	//pr($_entry->getMediaGallery());
+	$_media_gallery = $_entry->getMediaGallery();
+?>
+	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<title><?php print $this->escapeHtml($_entry->getName()); ?></title>
+	<link href="<?php print $this->getSkinUrl(); ?>print_files/print.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div class="standard">
+		<p class="vanish"><a href="javascript: window.close();"><?php print $this->__('Close window'); ?></a></p>		
+		<?php foreach ($_media_gallery['images'] as $_index => $_image): ?>
+		<div>
+			<table height="100%" border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tbody>
+					<?php if (!$_index): ?>
+					<tr>
+						<td><div style="text-align: center;"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-logo.png" alt="" class="logo" height="76" border="0" width="535"></div></td>
+					</tr>
+					<tr>
+						<td><?php if ($_entry->getEntryDate()): ?><?php print $this->escapeHtml($_entry->getEntryDate()); ?>&nbsp;&#8212;&nbsp;<?php endif; ?><?php print $this->escapeHtml($_entry->getName()); ?></td>
+					</tr>
+					<tr>
+						<td><br><div class="imagecenter"><img src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $_image['file'])->resize(600)->__toString(); ?>" alt="" border="0" vspace="2" width="600"><div>www.antiqueprintroom.com</div></div></td>
+					</tr>
+					<?php else: ?>
+					<tr>
+						<td><div style="text-align: center;" class="show"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-logo.png" alt="" class="logo" height="76" border="0" width="535"></div>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>
+							<h2 class="normal show">4 &#8212; 1802 WILKINSON &#8212; Africa Including Arabia and the Mediterranean.</h2>
+							<div class="imagecenter"><img src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $_image['file'])->resize(600)->__toString(); ?>" class="print" alt="" border="0" vspace="2" width="600"></div>
+						</td>
+					</tr>
+					<?php endif; ?>					
+					<tr>
+						<td>
+							<div class="show">
+								<table border="0" cellpadding="0" cellspacing="0" width="100%">
+									<tbody>
+										<tr>
+											<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-aada.png" alt="" class="noborder" height="76" border="0" width="76"></td>
+											<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-anzaab.png" alt="" class="noborder" height="76" border="0" width="64"></td>
+											<td class="subtext" valign="bottom">
+												<p><strong>Louis Kissajukian</strong></p>
+												<p>Shop 7-11, Level 2, Queen Victoria Building, 455 George Street, Sydney, NSW Australia, 2000<br>61 02 9267 4355, http://www.antiqueprintroom.com</p>
+											</td>
+											<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-cinoa.png" alt="" class="noborder" height="76" border="0" width="62"></td>
+											<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-ilab.png" alt="" class="noborder" height="76" border="0" width="76"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<hr class="pagebreak">
+		<?php endforeach; ?>
+		<div>
+			<table height="100%" border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tbody>
+					<tr>
+						<td colspan="5"><div style="text-align: center;" class="show"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-logo.png" alt="" class="logo" height="76" border="0" width="535"></div></td>
+					</tr>
+					<tr>
+						<td colspan="5" align="center" valign="top">
+							<div style="text-align: left;margin-top: 100px;">
+								<table class="desc">
+									<tbody>
+										<tr>
+											<th><?php print $this->__('Title'); ?></th>
+											<td><h3 class="normal"><?php if ($_entry->getEntryDate()): ?><?php print $this->escapeHtml($_entry->getEntryDate()); ?>&nbsp;&#8212;&nbsp;<?php endif; ?><?php print $this->escapeHtml($_entry->getName()); ?></h3></td>
+										</tr>
+										<tr>
+											<th><?php print $this->__('Stock Number'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getSku()); ?></td>
+										</tr>
+										<?php if ($_entry->getEntryMapmaker()): ?>
+										<tr>
+											<th><?php print $this->__('Map Maker'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getEntryMapmaker()); ?>
+											<?php $_from_year = $_entry->getData('entry_mapmaker_from_year');?>
+											<?php $_to_year = $_entry->getData('entry_mapmaker_to_year');?>
+											<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+											(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+											<?php endif; ?>
+											</td>
+										</tr>
+										<?php endif; ?>
+										<?php if ($_entry->getEntryArtist()): ?>
+										<tr>
+											<th><?php print $this->__('Artist'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getEntryArtist()); ?>
+											<?php $_from_year = $_entry->getData('entry_artist_from_year');?>
+											<?php $_to_year = $_entry->getData('entry_artist_to_year');?>
+											<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+											(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+											<?php endif; ?>
+											</td>
+										</tr>
+										<?php endif; ?>
+										<?php if ($_entry->getEntryEngraver()): ?>
+										<tr>
+											<th><?php print $this->__('Engraver'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getEntryEngraver()); ?>
+											<?php $_from_year = $_entry->getData('entry_engraver_from_year');?>
+											<?php $_to_year = $_entry->getData('entry_engraver_to_year');?>
+											<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+											(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+											<?php endif; ?>
+											</td>
+										</tr>
+										<?php endif; ?>
+										<tr>
+											<?php $_entry_date = $_entry->getEntryDate(); ?>
+											<th><?php print $this->__('Date'); ?></th>
+											<td><?php print !empty($_entry_date)?$this->escapeHtml($_entry_date):'?'; ?></td>
+										</tr>
+										<?php if ($_entry->getData('entry_image_size_width') && $_entry->getData('entry_image_size_height')): ?>
+										<tr>
+											<th><?php print $this->__('Size'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getData('entry_image_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_image_size_height')); ?>mm</td>
+										</tr>
+										<?php endif; ?>
+										<?php if ($_entry->getData('entry_frame_size_width') && $_entry->getData('entry_frame_size_height')): ?>
+										<tr>
+											<th><?php print $this->__('Frame size'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getData('entry_frame_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_frame_size_height')); ?>mm</td>
+										</tr>
+										<?php endif; ?>
+										<?php if ($_entry->getData('entry_plate_mark_size_width') && $_entry->getData('entry_plate_mark_size_height')): ?>
+										<tr>
+											<th><?php print $this->__('Plate mark size'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getData('entry_plate_mark_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_plate_mark_size_height')); ?>mm</td>
+										</tr>
+										<?php endif; ?>
+										<?php if ($_entry->getData('entry_paper_size_width') && $_entry->getData('entry_paper_size_height')): ?>
+										<tr>
+											<th><?php print $this->__('Paper size'); ?></th>
+											<td><?php print $this->escapeHtml($_entry->getData('entry_paper_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_paper_size_height')); ?>mm</td>
+										</tr>
+										<?php endif; ?>
+										<?php $_entry_condition = $_entry->getEntryCondition(); ?>
+										<?php if (!empty($_entry_condition)): ?>
+										<tr>
+											<th><?php print $this->__('Condition'); ?></th>
+											<td><?php print $this->escapeHtml($_entry_condition); ?></td>
+										</tr>
+										<?php endif; ?>
+										<?php $_entry_technique = $_entry->getEntryTechnique(); ?>
+										<?php if (!empty($_entry_technique)): ?>
+										<tr>
+											<th><?php print $this->__('Technique'); ?></th>
+											<td><?php print $this->escapeHtml($_entry_technique); ?></td>
+										</tr>
+										<?php endif; ?>
+										<tr>
+											<th><?php print $this->__('Description'); ?></th>
+											<td>
+												<div class="webcode"><?php print $_entry->getDescription(); ?></div>
+											</td>
+										</tr>
+										<tr>
+											<th><?php print $this->__('Price'); ?></th>
+											<td><?php print Mage::helper('core')->currency($_entry->getPrice(), true, false); ?></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-aada.png" alt="" class="noborder" height="76" border="0" width="76"></td>
+						<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-anzaab.png" alt="" class="noborder" height="76" border="0" width="64"></td>
+						<td class="subtext">
+							<p><strong>Louis Kissajukian</strong></p>
+							<p>Shop 7-11, Level 2, Queen Victoria Building, 455 George Street, Sydney, NSW Australia, 2000<br>61 02 9267 4355, http://www.antiqueprintroom.com</p>
+						</td>
+						<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-cinoa.png" alt="" class="noborder" height="76" border="0" width="62"></td>
+						<td valign="bottom" width="50"><img src="<?php print $this->getSkinUrl(); ?>print_files/print-ilab.png" alt="" class="noborder" height="76" border="0" width="76"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<p class="vanish"><a href="javascript: window.close();"><?php print $this->__('Close window'); ?></a></p>
+	</div>
+</body></html>

@@ -1,0 +1,124 @@
+<?php $_entries = $this->getEntriesList(); ?>
+<?php if (count($_entries)): ?>
+<tr>
+	<td>		
+		<table bgcolor="FFFFFF" cellspacing="0" cellpadding="10" border="0" width="100%" >
+<?php foreach ($_entries as $_entry): ?>
+			<tr>
+				<td valign="top" style="padding: 2px; border-bottom: 1px solid #cccccc; padding-top: 10px;">
+					<?php if (!empty($_entry['image'])): ?><img src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $_entry['image'])->resize(80)->__toString(); ?>" /><?php endif; ?>
+				</td>
+				<td style="padding: 2px; border-bottom: 1px solid #cccccc; padding-top: 10px;">
+					<table cellpadding="2" cellspacing="0">
+						<tbody>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Title'); ?></th>
+								<td style="padding-left: 5px;"><?php if ($_entry->getEntryDate()): ?><?php print $this->escapeHtml($_entry->getEntryDate()); ?>&nbsp;&#8212;&nbsp;<?php endif; ?><?php print $this->escapeHtml($_entry->getName()); ?></td>
+							</tr>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Stock Number'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getSku()); ?></td>
+							</tr>
+							<?php if ($_entry->getEntryMapmaker()): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Map Maker'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getEntryMapmaker()); ?>
+								<?php $_from_year = $_entry->getData('entry_mapmaker_from_year');?>
+								<?php $_to_year = $_entry->getData('entry_mapmaker_to_year');?>
+								<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+								(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+								<?php endif; ?>
+								</td>
+							</tr>
+							<?php endif; ?>
+							<?php if ($_entry->getEntryArtist()): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Artist'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getEntryArtist()); ?>
+								<?php $_from_year = $_entry->getData('entry_artist_from_year');?>
+								<?php $_to_year = $_entry->getData('entry_artist_to_year');?>
+								<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+								(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+								<?php endif; ?>
+								</td>
+							</tr>
+							<?php endif; ?>
+							<?php if ($_entry->getEntryEngraver()): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Engraver'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getEntryEngraver()); ?>
+								<?php $_from_year = $_entry->getData('entry_engraver_from_year');?>
+								<?php $_to_year = $_entry->getData('entry_engraver_to_year');?>
+								<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+								(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+								<?php endif; ?>
+								</td>
+							</tr>
+							<?php endif; ?>
+							<tr>
+								<?php $_entry_date = $_entry->getEntryDate(); ?>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Date'); ?></th>
+								<td style="padding-left: 5px;"><?php print !empty($_entry_date)?$this->escapeHtml($_entry_date):'?'; ?></td>
+							</tr>
+							<?php if ($_entry->getData('entry_image_size_width') && $_entry->getData('entry_image_size_height')): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Size'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getData('entry_image_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_image_size_height')); ?>mm</td>
+							</tr>
+							<?php endif; ?>
+							<?php if ($_entry->getData('entry_frame_size_width') && $_entry->getData('entry_frame_size_height')): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Frame size'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getData('entry_frame_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_frame_size_height')); ?>mm</td>
+							</tr>
+							<?php endif; ?>
+							<?php if ($_entry->getData('entry_plate_mark_size_width') && $_entry->getData('entry_plate_mark_size_height')): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Plate mark size'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getData('entry_plate_mark_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_plate_mark_size_height')); ?>mm</td>
+							</tr>
+							<?php endif; ?>
+							<?php if ($_entry->getData('entry_paper_size_width') && $_entry->getData('entry_paper_size_height')): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Paper size'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry->getData('entry_paper_size_width')); ?>mm × <?php print $this->escapeHtml($_entry->getData('entry_paper_size_height')); ?>mm</td>
+							</tr>
+							<?php endif; ?>
+							<?php $_entry_condition = $_entry->getEntryCondition(); ?>
+							<?php if (!empty($_entry_condition)): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Condition'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry_condition); ?></td>
+							</tr>
+							<?php endif; ?>
+							<?php $_entry_technique = $_entry->getEntryTechnique(); ?>
+							<?php if (!empty($_entry_technique)): ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Technique'); ?></th>
+								<td style="padding-left: 5px;"><?php print $this->escapeHtml($_entry_technique); ?></td>
+							</tr>
+							<?php endif; ?>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Description'); ?></th>
+								<td style="padding-left: 5px;">
+									<div class="webcode"><?php print $_entry->getDescription(); ?></div>
+								</td>
+							</tr>
+							<tr>
+								<th style="font-size: 11px; text-align: left;"><?php print $this->__('Price'); ?></th>
+								<td style="padding-left: 5px;"><?php print Mage::helper('core')->currency($_entry->getPrice(), true, false); ?></td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<a href="<?php print Mage::app()->getStore('default')->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK). $_entry->getUrlPath(); ?>" title="Click here for more details">Click here for more details</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+<?php endforeach; ?>
+		</table>
+	</td>
+</tr>
+<?php endif; ?>

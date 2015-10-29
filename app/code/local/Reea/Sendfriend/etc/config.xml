@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   Reea
+ * @package    Reea_Productlog
+ * @author     ModuleCreator
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <modules>
+        <Reea_Sendfriend>
+            <version>0.1.0</version>
+        </Reea_Sendfriend>
+    </modules>
+    <frontend>
+        <routers>
+            <sendfriend>
+                <args>
+                    <modules>
+                         <Reea_Sendfriend before="Mage_Sendfriend">Reea_Sendfriend</Reea_Sendfriend>
+                    </modules>
+                </args>
+            </sendfriend>
+        </routers>
+    </frontend>
+</config>

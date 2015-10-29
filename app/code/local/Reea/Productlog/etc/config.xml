@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   Reea
+ * @package    Reea_Productlog
+ * @author     ModuleCreator
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <modules>
+        <Reea_Productlog>
+            <version>0.1.0</version>
+        </Reea_Productlog>
+    </modules>
+    <frontend>
+        <routers>
+            <productlog>
+                <use>standard</use>
+                <args>
+                    <module>Reea_Productlog</module>
+                    <frontName>productlog</frontName>
+                </args>
+            </productlog>
+        </routers>
+        <layout>
+            <updates>
+                <productlog>
+                    <file>productlog.xml</file>
+                </productlog>
+            </updates>
+        </layout>
+    </frontend>
+    <admin>
+        <routers>
+			<productlog>
+				<use>admin</use>
+				<args>
+					<module>Reea_Productlog</module>
+					<frontName>productlog</frontName>
+				</args>
+			</productlog>
+        </routers>
+    </admin>
+    <adminhtml>
+		<menu>
+			<productlog module="productlog">
+				<title>Productlog</title>
+				<sort_order>71</sort_order>               
+				<children>
+					<items module="productlog">
+						<title>Manage Items</title>
+						<sort_order>0</sort_order>
+						<action>productlog/adminhtml_productlog</action>
+					</items>
+				</children>
+			</productlog>
+		</menu>
+		<acl>
+			<resources>
+				<all>
+					<title>Allow Everything</title>
+				</all>
+				<admin>
+					<children>
+						<Reea_Productlog>
+							<title>Productlog Module</title>
+							<sort_order>10</sort_order>
+						</Reea_Productlog>
+					</children>
+				</admin>
+			</resources>
+		</acl>
+		<layout>
+			<updates>
+				<productlog>
+					<file>productlog.xml</file>
+				</productlog>
+			</updates>
+		</layout>
+    </adminhtml>   
+    <global>
+        <models>
+            <productlog>
+                <class>Reea_Productlog_Model</class>
+                <resourceModel>productlog_mysql4</resourceModel>
+            </productlog>
+            <productlog_mysql4>
+                <class>Reea_Productlog_Model_Mysql4</class>
+                <entities>
+                    <productlog>
+                        <table>productlog</table>
+                    </productlog>
+                </entities>
+            </productlog_mysql4>
+        </models>
+        <resources>
+            <productlog_setup>
+                <setup>
+                    <module>Reea_Productlog</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </productlog_setup>
+            <productlog_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </productlog_write>
+            <productlog_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </productlog_read>
+        </resources>
+        <blocks>
+            <productlog>
+                <class>Reea_Productlog_Block</class>
+            </productlog>
+        </blocks>
+        <helpers>
+            <productlog>
+                <class>Reea_Productlog_Helper</class>
+            </productlog>
+        </helpers>
+    </global>
+</config>

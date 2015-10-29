@@ -1,0 +1,46 @@
+<?php $_entry = $this->getEntry(); ?>
+<div class="entry-details">
+	<ul class="entry-data">
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Title'); ?>:</span>
+			<p class="attribute-value f-left"><i><?php print $_entry->getName(); ?></i></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Publication Details'); ?>:</span>
+			<p class="attribute-value f-left"><?php print $_entry->getPublicationDetails();?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Description'); ?>:</span>
+			<p class="attribute-value f-left"><?php print $_entry->getDescription();?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Pdf File'); ?>:</span>
+			<p class="attribute-value f-left">
+				<?php 
+				$productupload_Model = Mage::getModel('productupload/mconnectuploadfile'); 
+				$productupload_Collection = $productupload_Model->getCollection()->addFilter('productid',$_entry->getId())->getData();
+				if(count($productupload_Collection)>0){
+					$file=$productupload_Collection[0];
+						if(file_exists(Mage::getBaseDir(Mage_Core_Model_Store::URL_TYPE_MEDIA).'/'.$file['filename'])){ ?>
+							<p><a href="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).$file['filename']; ?>" target="_blank" class="buttons">View PDF</a></p>
+					<?php }
+				}else{ ?>
+					<p>No pdf file uploaded</p>
+				<?php } ?>  
+			</p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Purchase Product'); ?>:</span>
+			<p class="attribute-value f-left"><?php print $_entry->getPurchaseProduct()==1?'Yes':'No';?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Online Catalogue'); ?>:</span>
+			<p class="attribute-value f-left"><?php print $_entry->getOnlineCatalogue()?$_entry->getOnlineCatalogue():'';?></p>
+		</li>
+		<li class="attribute">
+			<span class="attribute-name f-left"><?php print $this->__('Price'); ?>:</span>
+			<p class="attribute-value f-left"><?php print Mage::helper('core')->currency($_entry->getPrice()); ?></p>
+		</li>
+	</ul>
+	<div class="clear"></div>
+</div>

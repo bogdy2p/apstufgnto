@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<modules>
+		<PayWay_Net>
+			<active>true</active>
+			<codePool>local</codePool>
+			<depends>
+                <Mage_Payment/>
+                <Mage_Checkout/>
+                <Mage_Sales/>
+			</depends>
+			<version>0.1.1</version>
+		</PayWay_Net>
+	</modules>
+</config>

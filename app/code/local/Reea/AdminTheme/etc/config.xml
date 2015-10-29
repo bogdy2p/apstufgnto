@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config>
+	<global>
+		
+		<models>
+			<reea_admintheme><class>Reea_AdminTheme_Model</class></reea_admintheme>
+		</models>
+		
+		<events>
+			
+			<adminhtml_controller_action_predispatch_start>
+				<observers>
+					<reea_admintheme_adminhtml_controller_action_predispatch_start>
+						<type>singleton</type>
+						<class>Reea_AdminTheme_Model_Observer</class>
+						<method>adminhtml_controller_action_predispatch_start</method>
+					</reea_admintheme_adminhtml_controller_action_predispatch_start>
+				</observers>
+			</adminhtml_controller_action_predispatch_start>
+			
+		</events>
+		
+	</global>
+</config>

@@ -1,0 +1,532 @@
+<?php 
+	$product_id = Mage::app()->getRequest()->getParam('product_id');
+	
+	$_postageAttribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_postage');
+	$_postageAttributeArray = array();
+	foreach ($_postageAttribute->getSource()->getAllOptions(true, true) as $_option) {
+		if ($_option['value']) {
+			$_postageAttributeArray[$_option['value']] = $_option['label'];
+		}
+	}
+	
+	
+	$_postageAttribute2 = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_postage2');
+	$_postageAttribute2Array = array();
+	foreach ($_postageAttribute2->getSource()->getAllOptions(true, true) as $_option) {
+		if ($_option['value']) {
+			$_postageAttribute2Array[$_option['value']] = $_option['label'];
+		}
+	}
+	
+	$_entry = Mage::getModel('catalog/product')->load($product_id);
+	$_id = $_entry->getId();
+	$_media_gallery = array('images' => array());
+	
+	$_category_assignments = array();
+	
+	$_category_assignments = Mage::helper('reea_entries')->getProductCategoryAssignments($_id);
+	
+	
+	
+	//$_categories = $this->getCategories();
+	
+	$l_oCategoriesCollection = Mage::getModel('catalog/category')
+            ->getCollection()
+            ->addAttributeToSelect('*')
+            ->addAttributeToFilter('level', 3)
+            ->addAttributeToFilter('is_active', true)
+            ->addOrderField('name');
+	$_categories = array();
+	$_categories[0]='please select';
+    foreach ($l_oCategoriesCollection as $l_oItem) {
+        $_categories[$l_oItem->getId()] = $l_oItem->getParentCategory()->getName() . " - " . $l_oItem->getName();
+    }
+	asort($_categories);
+	
+	$_id = strtotime('now');
+?>
+
+<div class="entry-errors" id="entry_errors_<?php print $_id; ?>" style="display: none;">
+<ul class="messages"><li class="error-msg"><ul><li><span></span></li></ul></li></ul>
+</div>
+<div class="entry-form-container">
+<table class="individual-entry" cellpadding="0" cellspacing="0" width="100%" id="individual_entry_<?php print $_id; ?>">
+    <tr>
+        <td style="width:10%">
+            <div class="main-image-container f-left">
+                <ul class="main-image-container-list" id="main_image_container_list_<?php print $_id; ?>">
+                    <?php if ($_entry->getInNewEmtpyEntry()): ?>					
+                        <input type="hidden" id="new_empty_entry_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][new]" value="yes" />
+                    <?php endif; ?>
+                        <li>
+                            <?php $mainImage = 'no_selection'; ?>
+                            <?php if ($mainImage && $mainImage != 'no_selection'): ?>
+                                <a class="entry-main-image-full" href="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $mainImage)->__toString(); ?>"><img class="entry-main-image" id="entry_main_image_<?php print $_id; ?>" src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $mainImage)->resize(180)->__toString(); ?>" border="0" /></a>
+                                <input type="hidden" id="entry_main_image_src_<?php print $_id; ?>" name="entry_main_image_src[<?php print $_id; ?>]" value="<?php print $mainImage; ?>" />
+                                <input type="hidden" id="entry_main_image_is_new_<?php print $_id; ?>" name="entry_main_image_is_new_[<?php print $_id; ?>]" value="0" />
+                                <?php 
+//                                    $mainImageFileName = substr($mainImage, strrpos($mainImage,"/")+1);
+//                                    $mainImageFileSizeLabel = $this->curl_get_file_size_label(Mage::helper('catalog/image')->init($_entry, 'image', $mainImage)->__toString());
+                                ?>
+                                <!--<label><?php // print "File: " . $mainImageFileName . " (" . $mainImageFileSizeLabel .  ") " ;?></label>-->
+                            <?php else: ?>
+                                <div class="entry-main-image" id="entry_main_image_<?php print $_id; ?>"></div>				
+                                <input type="hidden" id="entry_main_image_src_<?php print $_id; ?>" name="entry_main_image_src[<?php print $_id; ?>]" value="" />
+                                <input type="hidden" id="entry_main_image_is_new_<?php print $_id; ?>" name="entry_main_image_is_new_[<?php print $_id; ?>]" value="1" />
+                            <?php endif; ?>
+                        <li>
+                </ul>
+				<input type="hidden" name="entry[<?php print $_id; ?>][new]" value="1" />
+                <div class="image-buttons">
+                    <input class="upload-image" type="file" name="file_upload[<?php print $_id; ?>]" id="file_upload_<?php print $_id; ?>" />
+                    <button onclick="Reea.MultipleEntry.addDescription(<?php print $_id; ?>);" style="" class="scalable" type="button" title="Add Description" id="add_description_<?php print $_id; ?>"><span><span><span>Add Description</span></span></span></button><div class="clear"></div>
+                </div>
+            </div>
+            <div class="clear"></div>
+        </td>
+        <td style="width:50%">
+        	<ul class="entry-details f-right left-side">
+        		<li class="form-checkboxes">
+    				<div class="form-element f-left">
+						<label for="status_<?php print $_id; ?>">Enable</label>
+						<input id="status_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][status]" value="1" class="" type="checkbox" <?php echo $_entry->getStatus()==1?'checked="checked"':''?>>
+						<div style="clear: both"></div>
+					</div>
+		            <div class="form-element f-left">
+						<label for="entry_is_sold_<?php print $_id; ?>">Sold</label>
+						<input id="entry_is_sold_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_is_sold]" value="1" class="" type="checkbox" <?php echo $_entry->getEntryIsSold()==1?'checked="checked"':''?>>
+						<div style="clear: both"></div>
+					</div>
+		            <div class="form-element f-left">
+						<label for="entry_hide_<?php print $_id; ?>">Hide</label>
+						<input id="entry_hide_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_hide]" value="1" class="" type="checkbox" <?php echo $_entry->getEntryHide()==1?'checked="checked"':''?>>
+						<div style="clear: both"></div>
+					</div>
+			        <div class="form-element f-left">
+						<label for="entry_is_featured_<?php print $_id; ?>">Featured</label>
+						<input id="entry_is_featured_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_is_featured]" value="0" class="" type="checkbox" <?php echo $_entry->getEntryIsFeatured()==1?'checked="checked"':''?>>
+						<div style="clear: both"></div>
+					</div>
+
+					<div class="form-element f-left">
+						<label for="entry_on_hold_<?php print $_id; ?>">On hold</label>
+						<input id="entry_on_hold_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_on_hold]" value="0" class="" type="checkbox" <?php echo $_entry->getEntryOnHold()==1?'checked="checked"':''?>>
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+        		</li>
+        		<li>
+        			<div class="form-element f-left select textalign-left">
+						<label for="stock_number_<?php print $_id; ?>">Stock Number</label>		<!--</div>-->
+						<input id="stock_number_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][stock_number]" value="<?php print $_entry->getStockNumber(); ?>" class="required-entry input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div class="form-element f-left select textalign-left">
+						<label for="product_cost_code_<?php print $_id; ?>">Cost Code</label>		<!--</div>-->
+						<input id="product_cost_code_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][product_cost_code]" value="<?php print $_entry->getProductCostCode(); ?>" class="input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div class="form-element f-left select textalign-left">
+						<label for="product_location_<?php print $_id; ?>">Location</label>		<!--</div>-->
+						<input id="product_location_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][product_location]" value="<?php print $_entry->getProductLocation(); ?>" class="input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+        		</li>
+        		<li>
+        			<div class="form-element f-left select textalign-left">
+						<label for="product_location_<?php print $_id; ?>">Price</label>		<!--</div>-->
+						<input id="price_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][price]" value="<?php print $_entry->getPrice(); ?>" class="required-entry input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div class="form-element f-left select textalign-left">
+						<label for="product_lpk_<?php print $_id; ?>">LPK</label>		<!--</div>-->
+						<input id="product_lpk_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][product_lpk]" value="<?php print $_entry->getProductLpk(); ?>" class="input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+        		</li>
+        		<li>
+        			<div class="form-element f-left date">
+						<label for="entry_date_<?php print $_id; ?>">Date</label>
+						<input id="entry_date_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_date]" value="<?php print $_entry->getEntryDate(); ?>" class=" input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+				                                                    
+					<div class="form-element f-left date hide-label">
+						<label for="entry_date2_<?php print $_id; ?>">Date 2</label>
+						<input id="entry_date2_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_date2]" value="<?php print $_entry->getEntryDate2(); ?>" class=" input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					
+					<div class="form-element f-left select">
+						<label for="batch_id_<?php print $_id; ?>"><?php print $this->__('Batch No.'); ?></label>
+						<input id="batch_id_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_batch_id]" value="<?php print $_entry->getEntryBatchId(); ?>" class=" input-text" type="text">
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+					
+        		</li>
+        		<li>
+        			<div class="form-element f-left date"  style="width:100%;">
+						<label for="title_<?php print $_id; ?>">Title</label>
+						<input id="title_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][name]" value="<?php print $_entry->getName(); ?>" class=" input-text" type="text" style="width:700px;">
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+        		</li>
+        		<li>
+        			<div class="f-left div-radio">
+						<input class="f-left radio" type="radio" name="choose_author_artist" value="author" <?php echo trim($_entry->getEntryAuthor()) ? 'checked':''?>>
+						<label class="label-radio" for="frame_setup_Framed">Author</label>
+						<input class="f-left radio" type="radio" name="choose_author_artist" value="artist"  <?php echo trim($_entry->getEntryArtist()) ? 'checked':(trim($_entry->getEntryAuthor()) ? '':'checked'); ?>>
+						<label class="label-radio" for="frame_setup_Matted">Artist</label>
+					</div>
+					<div class="artist f-left" style="display:<?php echo trim($_entry->getEntryArtist()) ? 'block':(trim($_entry->getEntryAuthor()) ? 'none':'block'); ?>;">
+						<div class="form-element f-left name">
+							<input id="entry_artist_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_artist]" value="<?php echo $_entry->getEntryArtist();?>" class=" input-text" type="text">
+							<div style="clear: both"></div>
+						</div>
+												
+						<div class="form-element f-left date">
+							<span>(</span>
+							<input id="entry_artist_from_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_artist_from_year]" value="<?php echo $_entry->getEntryArtistFromYear();?>" class="validate-digits input-text" type="text"> - <div style="clear: both"></div>
+							<div style="clear: both"></div>
+						</div>						
+						<div class="form-element f-left date">
+							<input id="entry_artist_to_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_artist_to_year]" value="<?php echo $_entry->getEntryArtistToYear();?>" class="validate-digits input-text" type="text">
+							)
+							<div style="clear: both"></div>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+					
+					<div class="author f-left" style="display:<?php echo trim($_entry->getEntryAuthor())?'block' : 'none'?>;">
+						<div class="form-element f-left name">
+							<input id="entry_author_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_author]" value="<?php echo $_entry->getEntryAuthor();?>" class=" input-text" type="text">
+							<div style="clear: both"></div>
+						</div>
+						<div class="form-element f-left date">
+							<span>(</span>
+							<input id="entry_author_from_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_author_from_year]" value="<?php echo $_entry->getEntryAuthorFromYear();?>" class="validate-digits input-text" type="text"> - <div style="clear: both"></div>
+						</div>
+						<div class="form-element f-left date">
+							<input id="entry_author_to_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_author_to_year]" value="<?php echo $_entry->getEntryAuthorToYear();?>" class="validate-digits input-text" type="text">
+							)
+							<div style="clear: both"></div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+        		</li>
+        		<li>
+					<div class="form-element f-left name">		
+						<label for="entry_mapmaker_<?php print $_id; ?>">Mapmaker</label>
+						<input id="entry_mapmaker_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_mapmaker]" value="<?php echo $_entry->getEntryMapmaker();?>" class=" input-text" type="text">	<!--</div>-->
+						<div style="clear: both"></div>
+					</div>
+					<div>
+                                                        
+						<div class="form-element f-left date">
+							<span>(</span>
+							<input id="entry_mapmaker_from_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_mapmaker_from_year]" value="<?php echo $_entry->getEntryMapmakerFromYear();?>" class="validate-digits input-text" type="text"> - <div style="clear: both"></div>
+							<div style="clear: both"></div>
+						</div>
+	
+	                                                        
+						<div class="form-element f-left date">	
+							<input id="entry_mapmaker_to_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_mapmaker_to_year]" value="<?php echo $_entry->getEntryMapmakerToYear();?>" class="validate-digits input-text" type="text">
+							)
+							<div style="clear: both"></div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</li>
+				<li>
+					<div class="form-element f-left name">
+						<label for="entry_engraver_<?php print $_id; ?>">Engraver</label>
+						<input id="entry_engraver_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_engraver]" value="<?php echo $_entry->getEntryEngraver();?>" class=" input-text" type="text">	<!--</div>-->
+						<div style="clear: both"></div>
+					</div>
+					<div>
+							
+						<div class="form-element f-left date">
+							<span>(</span>
+							<input id="entry_engraver_from_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_engraver_from_year]" value="<?php echo $_entry->getEntryEngraverFromYear();?>" class="validate-digits input-text" type="text"> - <div style="clear: both"></div>
+							<div style="clear: both"></div>
+						</div>                                            
+						<div class="form-element f-left date">
+							<input id="entry_engraver_to_year_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_engraver_to_year]" value="<?php echo $_entry->getEntryEngraverToYear();?>" class="validate-digits input-text" type="text">
+							)
+							<div style="clear: both"></div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</li>
+				<li>
+					<div class="form-element condition">
+						<label for="entry_condition_<?php print $_id; ?>">Condition</label>
+						<textarea id="entry_condition_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_condition]" class=" textarea" rows="2" cols="15" style="width:700px;"><?php echo $_entry->getEntryCondition();?></textarea>
+						<div style="clear: both"></div>
+					</div>
+				</li>
+				<li>
+					<?php
+					$attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+					$entry_technique = $attribute->getSource()->getOptionText($_entry->getEntryTechnique());
+					?>
+					<div class="form-element technique">
+						<label for="name_<?php print $_id; ?>">Technique</label>
+							<input type="text" class="input-text ui-autocomplete-input" value="<?php echo $entry_technique;?>" name="entry[<?php print $_id; ?>][entry_technique]" id="entry_technique_<?php print $_id; ?>" autocomplete="off" role="textbox" aria-autocomplete="list" aria-haspopup="true" style="width:700px;">
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both;"></div>
+					<script type="text/javascript">
+                    var techniques = <?php print json_encode(Mage::helper('reea_entries')->getAvailabelTechniques()); ?>;
+                    $j(document).ready(function(){
+                        $j('#entry_technique').autocomplete({
+                            source: techniques
+						});
+                    });
+					</script>
+				</li>
+				<li>
+					<div class="form-element f-left meta-keyword">
+						<label for="meta_keyword_<?php print $_id; ?>">Meta Keywords</label>
+						<textarea id="meta_keyword_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][meta_keyword]" class=" textarea" rows="2" cols="15"></textarea>
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both;"></div>
+				</li>
+				<li>
+					<div class="entry-cms-descriptions" style="display:none;">
+						<label>Description</label><br />
+            			<textarea disabled class="entry-description" id="description_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][description]"><?php print $_entry->getDescription(); ?></textarea>			
+					</div>
+				</li>
+        	</ul>
+        </td>
+        <td style="width:40%">
+        	<ul class="entry-details f-right right-side">
+        		<li>
+        			<div class="form-element f-left">
+	                    <label class="f-left"><?php print $this->__('Image Size'); ?></label><div class="clear"></div>
+	                    <div class="form-element f-left">
+	                    	<span>H</span>
+	                    	<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_image_size_width_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_image_size_width]" value="<?php print $_entry->getEntryImageSizeWidth(); ?>" />
+	                    	<span class="subscript">mm</span>
+	                    	<div style="clear: both;"></div>
+	                    </div>
+						<div class="form-element f-left entry-sizes-pair">
+							<span>W</span>
+	                    	<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_image_size_height_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_image_size_height]" value="<?php print $_entry->getEntryImageSizeHeight(); ?>" />
+	                    	<span class="subscript">mm</span>
+	                    </div>
+	                </div>
+	                <div class="form-element f-left">
+	                    <label class="f-left"><?php print $this->__('Frame Size'); ?></label><div class="clear"></div>
+						<div class="form-element f-left">
+							<span>H</span>
+		                    <input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_frame_size_width_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_frame_size_width]" value="<?php print $_entry->getEntryFrameSizeWidth(); ?>" />
+		                    <span class="subscript">mm</span>
+	                    </div>
+	                    <div class="form-element f-left entry-sizes-pair">
+	                    	<span>W</span>
+		                    <input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_frame_size_height_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_frame_size_height]" value="<?php print $_entry->getEntryFrameSizeHeight(); ?>" />
+		                    <span class="subscript">mm</span>
+	                    </div>
+	                </div>
+	                <div class="form-element f-left">
+	                    <label class="f-left"><?php print $this->__('Plate Size'); ?></label><div class="clear"></div>
+	                    <div class="form-element f-left">
+	                    	<span>H</span>
+	                    	<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_plate_mark_size_width_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_plate_mark_size_width]" value="<?php print $_entry->getEntryPlateMarkSizeWidth(); ?>" />
+	                    	<span class="subscript">mm</span>
+	                    </div>
+						<div class="form-element f-left entry-sizes-pair">
+							<span>W</span>
+	                    	<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_plate_mark_size_height_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_plate_mark_size_height]" value="<?php print $_entry->getEntryPlateMarkSizeHeight(); ?>" />
+	                    	<span class="subscript">mm</span>
+	                    </div>
+	                </div>
+	                <div class="form-element f-left">
+	                    <label class="f-left"><?php print $this->__('Paper Size'); ?></label><div class="clear"></div>
+	                    <div class="form-element f-left">
+	                    	<span>H</span>
+	                    	<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_paper_size_width_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_paper_size_width]" value="<?php print $_entry->getEntryPaperSizeWidth(); ?>" />
+	                  		<span class="subscript">mm</span>
+	                    </div>
+						<div class="form-element f-left entry-sizes-pair">
+							<span>W</span>
+	                  		<input style="width:30px;" class="validate-zero-or-greater entry-size-value input-text" type="text" id="entry_paper_size_height_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_paper_size_height]" value="<?php print $_entry->getEntryPaperSizeHeight(); ?>" />
+	                    	<span class="subscript">mm</span>
+	                    </div>
+	                </div>
+	                <div class="clear"></div>
+        		</li>
+        		<li>
+        			<div class="form-element f-left meta-keyword">
+        				
+						<div style="line-height:20px;height:20px;margin:0px 0px 20px 0px;">
+							<input style="float:left;margin:0px 5px;height:20px;line-height:20px;" type="radio" <?php print ($_entry->getFrameSetup() == 262)?'checked':''; ?> name="entry[<?php print $_id; ?>][frame_setup]" value="262">
+							<label style="font-weight:bold;" for="frame_setup_Matted">Matted</label>
+						</div>
+						<div style="line-height:20px;height:20px;margin:0px 0px 20px 0px;">
+							<input style="float:left;margin:0px 5px;height:20px;line-height:20px;" type="radio" <?php print ($_entry->getFrameSetup() == 263)?'checked':''; ?> name="entry[<?php print $_id; ?>][frame_setup]" value="263">
+							<label style="font-weight:bold;" for="frame_setup_Unmatted">Unmatted (FBC)</label>
+						</div>
+        			</div>
+        				
+					<div class="form-element f-left meta-keyword">
+						<div style="line-height:20px;height:20px;margin:0px 0px 20px 0px;">
+							<input style="float:left;margin:0px 5px;height:20px;line-height:20px;" type="radio" <?php print ($_entry->getFrameSetup() == 261)?'checked':''; ?> name="entry[<?php print $_id; ?>][frame_setup]" value="261">
+							<label style="font-weight:bold;" for="frame_setup_Framed">Framed</label>
+						</div>
+						<div style="line-height:20px;height:20px;margin:0px 0px 20px 0px;">
+							<input style="float:left;margin:0px 5px;height:20px;line-height:20px;" type="radio" <?php print ($_entry->getFrameSetup() == 1663)?'checked':''; ?> name="entry[<?php print $_id; ?>][frame_setup]" value="1663">
+							<label style="font-weight:bold;" for="frame_setup_Unmatted">Unmatted (Loose)</label>
+						</div>
+					</div>
+					
+					<div class="form-element f-left textalign-right">
+						<label class="label-entry_postage" for="entry_postage_<?php print $_id; ?>"><?php print $this->__('Postage'); ?></label>
+	                    <select class="select-entry-postage" id="entry_postage_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_postage]">
+	                        <option value=""><?php print $this->__('please select'); ?></option>
+	                        <?php foreach ($_postageAttributeArray as $_postage_id => $_postage_label): ?>
+	                            <option data-postage="<?php print ($this->__('Other') == $_postage_label) ? "" : substr($_postage_label, strpos($_postage_label, "|")+1) ; ?>" value="<?php print $_postage_id; ?>" <?php print ($_entry->getEntryPostage() == $_postage_id)?'selected':''; ?>><?php print ($this->__('Other') == $_postage_label) ? 'Other' : ++$i . ". " . substr($_postage_label, 0, strpos($_postage_label, "|")); ?></option>
+	                        <?php endforeach; ?>
+	                    </select>
+	                    <br />
+	                    <?php $_display_entry_custom_postage = false; ?>
+	                    <?php if ($_entry->getEntryPostage() && $this->__('Other') == $_postageAttributeArray[$_entry->getEntryPostage()]): ?>
+	                        <?php $_display_entry_custom_postage = true; ?>
+	                    <?php endif; ?>
+	                    <input style="display: <?php print $_display_entry_custom_postage?'':'none'; ?>" class="<?php print $_display_entry_custom_postage?'required-entry':''; ?> input-text" type="text" id="entry_custom_postage_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_custom_postage]" value="<?php print $_entry->getEntryCustomPostage(); ?>" />
+					</div>
+					
+					<div class="form-element f-left textalign-right unmatted-postage" style="<?php echo in_array($_entry->getFrameSetup(),array('1663','263'))?'display:block;':'display:none;'?>">
+						<label class="label-entry_postage" for="entry_postage_<?php print $_id; ?>"><?php print $this->__('Tube'); ?></label>
+	                    <select class="select-entry-postage2" id="entry_postage_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][entry_postage2]">
+	                        <option value=""><?php print $this->__('please select'); ?></option>
+							<?php $i=0;?>
+	                        <?php foreach ($_postageAttribute2Array as $_postage_id => $_postage_label): ?>
+	                            <option data-postage="<?php print substr($_postage_label, strpos($_postage_label, "|")+1) ; ?>" value="<?php print $_postage_id; ?>" <?php print ($_entry->getEntryPostage2() == $_postage_id)?'selected':''; ?>><?php print $_postage_label; ?></option>
+	                        <?php endforeach; ?>
+	                    </select>
+					</div>
+					                                                                                            
+					<div style="clear: both;"></div>
+				</li>
+				<li>
+					<div style="clear:both;padding-left:20px;padding-bottom:20px;">
+						<div class="form-element f-left size">
+							<span>Width</span>
+							<input id="width_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][width]" value="<?php echo $_entry->getWidth();?>" class=" input-text" type="text">
+							<span class="subscript">cm</span>
+							<div style="clear: both"></div>
+						</div>
+                                            
+						<div class="form-element f-left size">
+							<span>Length</span>
+							<input id="length_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][length]" value="<?php echo $_entry->getLength();?>" class=" input-text" type="text">
+							<span class="subscript">cm</span>
+							<div style="clear: both"></div>
+						</div>
+                                            
+						<div class="form-element f-left size">
+							<span>Height</span>
+							<input id="height_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][height]" value="<?php echo $_entry->getHeight();?>" class=" input-text" type="text">
+							<span class="subscript">cm</span>
+							<div style="clear: both"></div>
+						</div>
+                                            
+						<div class="form-element f-left size">
+							<span>Weight</span>
+							<input id="weight_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][weight]" value="<?php echo $_entry->getWeight();?>" class=" validate-number validate-zero-or-greater validate-number-range number-range-0-99999999.9999 input-text" type="text">
+							<span class="subscript">kg</span>
+							<div style="clear: both"></div>
+						</div>
+						<div style="clear: both"></div>
+					</div>
+					<div style="clear: both"></div>
+				</li>
+				
+				<li>
+						<?php
+	                $_number_of_default_categories = 3;
+	                $_number_of_assigned_categories = count($_entry->getCategoryIds());
+	                $_assigned_category_ids = $_entry->getCategoryIds();
+	                //pr($_number_of_assigned_categories);
+	                //pr($_entry->getCategoryIds());
+	
+	                $_number_of_dropdowns_to_render = max($_number_of_default_categories, $_number_of_assigned_categories);
+	            ?>
+	            <div class="assigned-categories-labels">
+	                <label class="catalog" ><?php print $this->__('CATEGORY/CATALOGUE'); ?></label>
+	                <label class="subject"><?php print $this->__('SUBJECT'); ?></label>
+	                <label class="subsubject"><?php print $this->__('SUB-SUBJECT'); ?></label>
+	            </div>
+	            <div class="clear"></div>
+	            <ul class="assigned-to-categories">
+	                <?php for ($i = 0; $i < $_number_of_dropdowns_to_render; $i++): ?>
+	                    <?php if (isset($_assigned_category_ids[$i])): ?>
+	                    <?php $_assiged_category_id = $_assigned_category_ids[$i]; ?>
+	                    <?php else: ?>
+	                    <?php $_assiged_category_id = null; ?>
+	                    <?php endif; ?>
+	                    <li>
+	                        <span class="f-left"><?php print ($i + 1);?>.</span>
+	                        <img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />
+	                        <select class="f-left" id="assigned_category_id_<?php print $_id; ?>_<?php print $i; ?>" name="assigned_category[<?php print $_id; ?>][<?php print $i; ?>][id]">
+	                            <option value=""><?php print $this->__('please select'); ?></option>
+	                            <?php foreach ($_categories as $_category_id => $_category_name): ?>
+	                            <option value="<?php print $_category_id; ?>" <?php print ($_assiged_category_id == $_category_id)?'selected':''; ?>><?php print $_category_name; ?></option>
+	                            <?php endforeach; ?>
+	                        </select>
+	                        <input class="f-left input-text" type="text" id="assigned_category_subject_<?php print $_id; ?>_<?php print $i; ?>" name="assigned_category[<?php print $_id; ?>][<?php print $i; ?>][subject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subject']:''; ?>" />
+	                        <input class="f-left input-text" type="text" id="assigned_category_subsubject_<?php print $_id; ?>_<?php print $i; ?>" name="assigned_category[<?php print $_id; ?>][<?php print $i; ?>][subsubject]" value="<?php print isset($_category_assignments[$_assiged_category_id])?$_category_assignments[$_assiged_category_id]['subsubject']:''; ?>" />
+	                        <div class="clear"></div>
+	                    </li>
+	                <?php endfor; ?>
+	            </ul>
+	            <div class="image-buttons catalogue">
+	                <button style="" class="scalable" type="button" title="Link another catalgoue" id="set_catalogues_<?php print $_id; ?>"><span><span><span>Link another catalogue</span></span></span></button><div class="clear"></div>
+	            </div>
+				</li>
+				<li>
+					<div class="entry-cms-descriptions" style="display:none;">
+						<label>Biography</label><br />
+            			<textarea disabled class="entry-description short" id="short_description_<?php print $_id; ?>" name="entry[<?php print $_id; ?>][short_description]"><?php print $_entry->getShortDescription(); ?></textarea>			
+					</div>
+				</li>
+        	</ul>
+        </td>
+    </tr>
+</table>
+</div>
+<script type="text/javascript">
+$j(document).ready(function(){
+	$j('#file_upload_<?php print $_id; ?>:first').uploadify({
+                swf: '<?php print Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>uploadify/uploadify.swf',
+                uploader: '<?php print Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>uploadify/uploadify.php',
+                buttonText: 'Add Images',
+                queueID: 'uploadify_queue_<?php print $_id; ?>',
+                width: 147,
+                preventCaching: false,
+                onUploadSuccess: function(file, data, response) {
+                    var l_oImageData = JSON.parse(data);
+                    Reea.MultipleEntry.handleNewImage(<?php print $_id; ?>, l_oImageData);
+                    //console.log(l_oImageData);
+                    return false;
+                },
+                onUploadComplete__: function(file) {
+                    Reea.MultipleEntry.handleNewImage(<?php print $_id; ?>, file);
+                    return true;
+                },
+                onQueueComplete : function(queueData) {
+                    Reea.MultipleEntry.handleQueueComplete(<?php print $_id; ?>);
+                }
+            });
+	
+})
+Reea.MultipleEntry.gallery[<?php print $_id; ?>] = <?php print json_encode($_media_gallery);?>;
+</script>

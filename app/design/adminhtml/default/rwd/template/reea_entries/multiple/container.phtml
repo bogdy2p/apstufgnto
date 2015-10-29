@@ -1,0 +1,587 @@
+<div class="content-header">
+<table cellspacing="0">
+    <tbody>
+		<tr><td style="width:50%;"><h3 class="icon-head head-products"><?php print Mage::helper('reea_entries')->__('Manage Multiple Entries'); ?></h3>
+		<div class="content-buttons-placeholder"><p class="content-buttons form-buttons">
+			<button style="" onclick="Reea.MultipleEntry.form.submit()" class="scalable save" type="button" title="Save" id="id_74c6f32c6a5175726ef59bbf50d73a2b"><span><span><span>Save</span></span></span></button>
+			</p></div>
+	</td></tr></tbody></table>
+</div>
+<script type="text/javascript">
+var console = console || {};
+console.log = console.log || function () {return false;};
+
+// Initialize TinyMCE with the new plugin and listbox
+tinyMCE.init({
+	mode : "none", 
+	theme : "advanced", 
+	theme_advanced_buttons1 : "bold,italic,underline,separator,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,bullist,numlist,undo,redo,link,unlink", 
+	theme_advanced_buttons2 : "", 
+	theme_advanced_buttons3 : "", 
+	theme_advanced_toolbar_location : "top", 
+	theme_advanced_toolbar_align : "left", 
+	theme_advanced_statusbar_location : "bottom"
+});
+
+var Reea = Reea || {};
+Reea.MultipleEntry = Reea.MultipleEntry || {};
+Reea.MultipleEntry.gallery = {};
+Reea.MultipleEntry.availableTechniques = <?php print json_encode(Mage::helper('reea_entries')->getAvailabelTechniques()); ?>;
+Reea.MultipleEntry.internalMark = Math.round(new Date().getTime() / 1000);
+Reea.MultipleEntry.u = false;
+//Reea.MultipleEntry.removeFromListUrl = '';
+
+Reea.MultipleEntry.addDescription = function(p_iEntryId) {
+	$j('table#individual_entry_' + p_iEntryId + ' tr.entry-cms-descriptions textarea').attr('disabled', false);
+	tinyMCE.execCommand("mceAddControl", true, "description_" + p_iEntryId);
+	tinyMCE.execCommand("mceAddControl", true, "short_description_" + p_iEntryId);
+	$j('table#individual_entry_' + p_iEntryId + ' .entry-cms-descriptions').show();
+	return true;
+};
+
+Reea.MultipleEntry.rowInitCallback = function(p_oGridObject, p_oRowData) {
+    
+    if ($j(p_oRowData).hasClass('entry-row')) {
+        
+        var l_iEntryId = $j('table.individual-entry', $j(p_oRowData)).attr('id').split('_').pop();
+        
+        //console.log('initializing row for entry: ' + l_iEntryId);
+        
+        // add auto-suggest for technique
+        $j('#entry_technique_' + l_iEntryId).autocomplete({
+            source: Reea.MultipleEntry.availableTechniques
+        });
+        
+        // add uploadify
+        
+        if (!Reea.MultipleEntry.u) {
+            
+            //Reea.MultipleEntry.u = true;
+            
+            //console.log('loading uploadify for entry: ' + l_iEntryId);
+        
+            $j('#file_upload_' + l_iEntryId + ':first').uploadify({
+                swf: '<?php print Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>uploadify/uploadify.swf',
+                uploader: '<?php print Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>uploadify/uploadify.php',
+                buttonText: 'Add Images',
+                queueID: 'uploadify_queue_' + l_iEntryId,
+                width: 147,
+                preventCaching: false,
+                onUploadSuccess: function(file, data, response) {
+                    var l_oImageData = JSON.parse(data);
+                    Reea.MultipleEntry.handleNewImage(l_iEntryId, l_oImageData);
+                    // console.log(l_oImageData);
+                    return false;
+                },
+                onUploadComplete__: function(file) {
+                    Reea.MultipleEntry.handleNewImage(l_iEntryId, file);
+                    return true;
+                },
+                onQueueComplete : function(queueData) {
+                    Reea.MultipleEntry.handleQueueComplete(l_iEntryId);
+                }
+            });
+        
+        }
+        
+        // add sortable functionality to the media gallery items
+        $j('#gallery_container_' + l_iEntryId).sortable({
+            helper: 'clone',
+            placeholder: 'ui-state-highlight',
+            //cursor: 'pointer',
+            update: function (event, ui) {
+                // console.log('update');
+                // console.log(ui);
+            },
+            start: function (event, ui) {
+                console.log('start');
+            },
+            stop: function (event, ui) {
+                console.log('stop');
+                console.log(ui);
+            }
+        });
+        
+        var l_oDIV = $j('#entry_form_overlay_' + l_iEntryId);
+        if (l_oDIV.length) {
+            
+            // only for new entries
+            
+            var l_oTable = $j('#individual_entry_' + l_iEntryId);        
+
+            $j('#individual_entry_' + l_iEntryId + ' input').attr('disabled', true);
+            $j('#individual_entry_' + l_iEntryId + ' select').attr('disabled', true);
+            $j('#individual_entry_' + l_iEntryId + ' textarea').attr('disabled', true);
+
+            $j(l_oDIV).css('width', l_oTable.width() + 'px');
+            $j(l_oDIV).css('height', l_oTable.height() + 'px');
+            $j(l_oDIV).show();
+        }
+        
+        // add category-assignments management for each row
+        
+        $j('button#set_catalogues_' + l_iEntryId).click(function () {
+			
+			//alert('add category for entry: ' + l_iEntryId);
+			
+			// get the table in which the entry information is displayed
+			var l_oTABLE = $j('table#individual_entry_' + l_iEntryId);
+			var l_oUL = $j('ul.assigned-to-categories', l_oTABLE);
+			var l_iNumberOfLIs = $j('li', l_oUL).length;
+			
+			// generate a new category selection item
+			
+			var l_sItemHTML = '<li>' + 
+					'<span class="f-left">' + (l_iNumberOfLIs + 1) + '.</span>' +
+					'<img class="f-left" src="<?php print $this->getSkinUrl(); ?>images/cancel_icon.gif" border="0" />' + 
+					'<select class="f-left" id="assigned_category_id_' + l_iEntryId + '_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + l_iEntryId + '][' + (l_iNumberOfLIs + 1) + '][id]">' + 
+						'<option value=""><?php print $this->__('please select'); ?></option>' + 
+						<?php foreach ($this->getCategories() as $_category_id => $_category_name): ?>
+						'<option value="<?php print $_category_id; ?>"><?php print addslashes($_category_name); ?></option>' + 
+						<?php endforeach; ?>
+					'</select>' + 
+					'<input class="f-left input-text" type="text" id="assigned_category_subject_' + l_iEntryId + '_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + l_iEntryId + '][' + (l_iNumberOfLIs + 1) + '][subject]" value="" />' +
+					'<input class="f-left input-text" type="text" id="assigned_category_subsubject_' + l_iEntryId + '_' + (l_iNumberOfLIs + 1) + '" name="assigned_category[' + l_iEntryId + '][' + (l_iNumberOfLIs + 1) + '][subsubject]" value="" />' +
+					'<div class="clear"></div>' +
+				'</li>';
+				
+			l_oUL.append(l_sItemHTML);
+			
+			return false;
+		});
+
+        //console.log('width: ' + l_oTable.width());
+        //console.log('height: ' + l_oTable.height());
+        //console.log(l_iEntryId);
+        
+    }
+    
+    return false;
+};
+
+Reea.MultipleEntry.initFormSubmit = function (p_iFormId) {
+
+	$j('.hidden-form-data').remove();
+
+	// add the gallery information to the form
+	$j.each($j('ul.gallery-image-list'), function(k, p_oUL) {
+		// console.log(p_oUL);
+		// determine the entry id
+		var l_iEntryId = $j(p_oUL).attr('id').split('_').pop();
+		// console.log('processing entry id: ' + l_iEntryId);
+		var l_aImagesOrder = new Array();
+		
+		$j.each($j('ul.gallery-image-list#gallery_container_' + l_iEntryId + ' li img.gallery-image'), function(i, p_oIMG) {
+			var l_iMediaItemId = $j(p_oIMG).attr('id').split('_').pop();
+			l_aImagesOrder.push(l_iMediaItemId);
+		});
+		
+		$j('form#' + p_iFormId).append('<input class="hidden-form-data" id="gallery_item_order_' + l_iEntryId + '" type="hidden" name="gallery_item_order[' + l_iEntryId + ']" value="" />');
+		$j('form#' + p_iFormId + ' #gallery_item_order_' + l_iEntryId).val(JSON.stringify(l_aImagesOrder));
+		
+	});
+	
+	$j('form#' + p_iFormId).append('<input class="hidden-form-data" type="hidden" id="gallery" name="gallery" value="" />');
+	$j('form#' + p_iFormId + ' #gallery').val(JSON.stringify(Reea.MultipleEntry.gallery));
+
+	return false;
+};
+
+Reea.MultipleEntry.form = null;
+
+Reea.MultipleEntry.uploadImage = function(p_iEntryId) {
+	// console.log('upload image for entry ' + p_iEntryId);
+	return false;
+};
+
+Reea.MultipleEntry.receiveMediaGalleryItem = function(p_iEntryId, p_iMediaGalleryValueId) {
+	
+	var l_oMediaGalleryItem = null;
+	
+	if (Reea.MultipleEntry.gallery[p_iEntryId].images) {		
+		$j.each(Reea.MultipleEntry.gallery[p_iEntryId].images, function (k, p_oMediaGalleryItem) {
+			if (p_iMediaGalleryValueId == p_oMediaGalleryItem.value_id) {
+				l_oMediaGalleryItem = p_oMediaGalleryItem;
+				return false;
+			}
+			return true;
+		});
+	}
+	
+	return l_oMediaGalleryItem;
+	
+};
+
+Reea.MultipleEntry.handleNewImage = function(p_iEntryId, p_oFileInformation) {
+	
+	console.log('image uploaded for entry: ' + p_iEntryId);
+	//console.log(p_oFileInformation);
+	
+	// push the image into the images array
+	
+	var l_iMediaItemId = Reea.MultipleEntry.internalMark++;
+	
+        Reea.MultipleEntry.gallery[p_iEntryId].images.push({
+            url:                    p_oFileInformation.url,
+            disabled:               0,
+            file:                   p_oFileInformation.file,
+            label:                  '',
+            position:               0,
+            value_id:               l_iMediaItemId,
+            is_new:                 true
+        });
+	
+	// add the image to the preview
+	
+	$j('ul#gallery_container_' + p_iEntryId).append('<li>' +
+	'<img class="gallery-image" id="gallery_image_' + l_iMediaItemId + '" src="' + p_oFileInformation.url + '" border="0px;"/>' +
+	'<a title="<?php print $this->__('Set as main image'); ?>" class="make-main-image" id="make_main_image_' + l_iMediaItemId + '" href="javascript: void(0);"></a>' + 
+	'</li>');
+	
+	if (1 == Reea.MultipleEntry.gallery[p_iEntryId].images.length) {
+		
+		// the new added image is the single image for this product
+		
+		// get the container for the image
+		var l_oImageContainer = $j('div.entry-main-image#entry_main_image_' + p_iEntryId).parent();
+		
+		// remove the placeholder div
+		$j('div.entry-main-image#entry_main_image_' + p_iEntryId).remove();
+		
+		// render the main image		
+		l_oImageContainer.prepend('<img class="entry-main-image" id="entry_main_image_' + p_iEntryId + '" src="' + p_oFileInformation.url + '" border="0" />');
+		$j('input#entry_main_image_src_' + p_iEntryId).val(p_oFileInformation.file);
+		$j('input#entry_main_image_is_new_' + p_iEntryId).val(1);
+		$j('a#make_main_image_' + l_iMediaItemId).addClass('active');
+	}
+	
+	return false;
+};
+
+Reea.MultipleEntry.removeImage = function(p_iEntryId, p_iMediaGalleryValueId) {
+	return false;
+};
+
+Reea.MultipleEntry.refreshSortable = function(p_iEntryId) {
+	$j('ul#gallery_container_' + p_iEntryId).sortable('destroy');
+
+	$j('ul#gallery_container_' + p_iEntryId).sortable({
+		helper: 'clone',
+		placeholder: 'ui-state-highlight'
+		//cursor: 'pointer'
+	});
+		
+	return false;
+};
+
+Reea.MultipleEntry.handleQueueComplete = function(p_iEntryId) {
+
+	Reea.MultipleEntry.refreshSortable(p_iEntryId);
+		
+	return false;
+};
+
+Reea.MultipleEntry.removeFromMultipleEntriesList = function(p_iProductId) {
+	
+        $j.ajax({
+            url: Reea.MultipleEntry.removeFromListUrl,
+            type: 'POST',
+            data: {
+                id: p_iProductId,
+                form_key: Reea.MultipleEntry.formKey
+            },
+            dataType: 'json',
+            success: function (p_oJSON) {
+                $j('#remove_from_multiple_entries_list_' + p_iProductId).fadeOut(function() {
+                    $j('#' + p_iProductId).remove();
+                });
+                
+                return false;
+                
+            }
+	});
+	
+	return false;
+	
+};
+	
+Reea.MultipleEntry.removeImages = function(l_iEntryId){
+	// remove the image
+	
+	if(!deleted_images[l_iEntryId]){
+		return false;
+	}
+	
+	
+	var images = deleted_images[l_iEntryId];
+	
+	if (Reea.MultipleEntry.gallery[l_iEntryId].images) {
+		$j.each(images,function(index,value){
+			var l_iMediaItemId = value;
+			$j('#gallery_image_'+l_iMediaItemId).parent().remove();
+			
+			$j.each(Reea.MultipleEntry.gallery[l_iEntryId].images, function (k, p_oMediaGalleryItem) {
+				if (l_iMediaItemId == p_oMediaGalleryItem.value_id) {
+					
+					// we found the image that we want to delete
+					
+					//Reea.MultipleEntry.gallery[l_iEntryId].images.splice(k, 1);
+		                                Reea.MultipleEntry.gallery[l_iEntryId].images[k].removed = 1;
+					
+					if (p_oMediaGalleryItem.file == $j('#entry_main_image_src_' + l_iEntryId).val()) {
+						
+						// the image that we delete is the main image
+						// we need to auto select the first image from the gallery as the main image
+						
+						// locate the first item in the list
+						
+						var l_aoImages = $j('ul#gallery_container_' + l_iEntryId + ' li img.gallery-image:first');
+						
+						if (l_aoImages.length) {
+							
+							// we have images in the gallery
+							
+							var l_iToBeSelectedMediaItemId = l_aoImages.attr('id').split('_').pop();
+							
+							console.log('media item id to be selected: ' + l_iToBeSelectedMediaItemId);
+							
+							var l_oMediaItemToBeSelected = Reea.MultipleEntry.receiveMediaGalleryItem(l_iEntryId, l_iToBeSelectedMediaItemId);
+							
+							// render the main image
+							
+							$j('img.#entry_main_image_' + l_iEntryId).attr('src', l_aoImages.attr('src'));
+							$j('input#entry_main_image_src_' + l_iEntryId).val(l_oMediaItemToBeSelected.file);
+							$j('input#entry_main_image_is_new_' + l_iEntryId).val(l_oMediaItemToBeSelected.is_new?1:0);
+							
+							$j('ul#gallery_container_' + l_iEntryId + ' a.make-main-image').removeClass('active');
+		
+							$j('#make_main_image_' + l_iToBeSelectedMediaItemId).addClass('active');
+							
+						}
+						else {
+							// we do not have image in the gallery
+							
+							var l_oMainImageContainer = $j('img.#entry_main_image_' + l_iEntryId).parent();
+							$j('img.#entry_main_image_' + l_iEntryId).remove();
+							
+							l_oMainImageContainer.prepend('<div class="entry-main-image" id="entry_main_image_' + l_iEntryId + '"></div>');
+							
+							$j('input#entry_main_image_src_' + l_iEntryId).val('');
+							$j('input#entry_main_image_is_new_' + l_iEntryId).val(1);
+						}
+						
+											
+					}
+					
+					
+					return false;
+				}
+				return true;
+			});
+		});
+	
+	}
+	return false;
+	
+	
+	// refresh the sortable
+	Reea.MultipleEntry.refreshSortable(l_iEntryId);
+};
+var deleted_images = {};
+
+
+
+
+$j(document).ready(function() {
+	
+        $j('button.remove-from-list').live('click', function(p_oEvent) {
+            p_oEvent.stopPropagation();
+
+            var l_iEntryId = $j(this).attr('id').split('_').pop();
+            Reea.MultipleEntry.removeFromMultipleEntriesList(l_iEntryId);
+
+            return false;
+	});
+	
+        // handle click on remove icon for category assignments
+	$j('ul.assigned-to-categories li img').live('click', function() {
+		var l_oUL = $j(this).parent().parent();
+		$j(this).parent().remove();
+		var l_iCount = 1;
+		//console.log(l_oUL);
+		//console.log($j('span', l_oUL));
+		$j.each($j('span', l_oUL), function(k, p_oSPAN) {
+			$j(p_oSPAN).html(l_iCount + '.');
+			l_iCount++;
+			return true;
+		});
+		return true;
+	});
+	
+	$j('select.select-entry-postage').live('change', function() {
+		var l_iEntryId = $j(this).attr('id').split('_').pop();
+		if ($j('option:selected', this).text() == '<?php print $this->__('Other'); ?>') {
+			$j('#entry_custom_postage_' + l_iEntryId).show().addClass('required-entry');
+		}
+		else {
+			$j('#entry_custom_postage_' + l_iEntryId).hide().val('').removeClass('required-entry');
+		}
+		return true;
+	});
+	
+	$j('input.add-new-entry-checkbox').live('click', function() {
+		var l_bChecked = $j(this).get(0).checked;
+		var l_iEntryId = $j(this).attr('id').split('_').pop();
+		if (l_bChecked) {
+			// activate form
+			$j('#entry_form_overlay_' + l_iEntryId).hide();
+			$j('#individual_entry_' + l_iEntryId + ' input').attr('disabled', false);
+			$j('#individual_entry_' + l_iEntryId + ' select').attr('disabled', false);
+                        $j('#individual_entry_' + l_iEntryId + ' textarea').attr('disabled', false);
+		}
+		else {
+			// inactivate form
+			
+			var l_oTable = $j('#individual_entry_' + l_iEntryId);
+			$j('#individual_entry_' + l_iEntryId + ' input').attr('disabled', true);
+			$j('#individual_entry_' + l_iEntryId + ' select').attr('disabled', true);
+                        $j('#individual_entry_' + l_iEntryId + ' textarea').attr('disabled', true);
+			var l_oDIV = $j('#entry_form_overlay_' + l_iEntryId);
+			$j(l_oDIV).css('width', l_oTable.width() + 'px');
+			$j(l_oDIV).css('height', l_oTable.height() + 'px');
+			$j(l_oDIV)
+				.show();
+
+			
+		}
+	});
+	
+	$j('a.make-main-image').live('click', function() {
+		var l_iMediaItemId = $j(this).attr('id').split('_').pop();		
+		// console.log('remove image: ' + l_iMediaItemId);
+		// process the entry id		
+		var l_iEntryId = $j(this).parent().parent().attr('id').split('_').pop();		
+		// console.log('entry id: ' + l_iEntryId);
+		
+		// we have images in the gallery
+							
+		var l_iToBeSelectedMediaItemId = l_iMediaItemId;
+		
+		// console.log('media item id to be selected: ' + l_iToBeSelectedMediaItemId);
+		
+		var l_oMediaItemToBeSelected = Reea.MultipleEntry.receiveMediaGalleryItem(l_iEntryId, l_iToBeSelectedMediaItemId);
+		
+		// render the main image
+		if ($j('img.#entry_main_image_' + l_iEntryId).length) {
+			
+			// the entry allready has an image attached
+			
+			$j('img.#entry_main_image_' + l_iEntryId).attr('src', $j('#gallery_image_' + l_iMediaItemId).attr('src'));
+		}
+		else {
+			// the entry has images, but no image has been attached yet
+			
+			// get the container for the image
+			var l_oImageContainer = $j('div.entry-main-image#entry_main_image_' + l_iEntryId).parent();
+			
+			// remove the placeholder div
+			$j('div.entry-main-image#entry_main_image_' + l_iEntryId).remove();
+			
+			// render the main image		
+			l_oImageContainer.prepend('<img class="entry-main-image" id="entry_main_image_' + l_iEntryId + '" src="' + $j('#gallery_image_' + l_iMediaItemId).attr('src') + '" border="0" />');
+			
+		}
+		$j('input#entry_main_image_src_' + l_iEntryId).val(l_oMediaItemToBeSelected.file);
+		$j('input#entry_main_image_is_new_' + l_iEntryId).val(l_oMediaItemToBeSelected.is_new?1:0);
+		
+		$j('ul#gallery_container_' + l_iEntryId + ' a.make-main-image').removeClass('active');
+		
+		$j(this).addClass('active');
+		
+		
+		return false;
+	});
+	
+	$j('a.delete-image').live('click', function() {
+		
+		
+		// process the media gallery item id
+		var l_iMediaItemId = $j(this).attr('id').split('_').pop();		
+		
+		// console.log('remove image: ' + l_iMediaItemId);
+		
+		// process the entry id		
+		var l_iEntryId = $j(this).parent().parent().attr('id').split('_').pop();		
+		
+		// console.log('entry id: ' + l_iEntryId);
+		
+		if($j(this).hasClass('active')){
+			$j(this).removeClass('active');
+			var img = deleted_images[l_iEntryId];
+			var index = img.indexOf(l_iMediaItemId);
+			if(index > -1){
+				img.splice(index,1);
+			}
+			if(img.length>0){
+				deleted_images[l_iEntryId]=img;	
+			}else{
+				deleted_images[l_iEntryId]=[];
+			}
+		}else{
+			$j(this).addClass('active');
+			
+			if(deleted_images[l_iEntryId]){
+				var img = deleted_images[l_iEntryId];
+				img.push(l_iMediaItemId); 
+				deleted_images[l_iEntryId] = img;
+					
+			}else{
+				deleted_images[l_iEntryId]=[l_iMediaItemId];
+			}
+		}
+		
+		
+		
+		return false;
+		
+	});
+
+	return false;
+});
+$j(".clone-new-entry-checkbox").live("change",function(){
+    if($j(this).is(':checked')){
+        var current_td_parent = $j(this).parents("td:first");
+        var previous_id = $j("#multipleEntriesGrid_table").find("tr.duplicate-item:last").attr("id");
+        $j.ajax({
+            url: '<?php print $this->getUrl('*/*/getDuplicate'); ?>',
+            type: 'GET',
+            data: {product_id:previous_id},
+            success: function(response) {
+                current_td_parent.empty();
+                current_td_parent.append(response);
+            }
+        });
+    }
+});
+
+$j(".clone-new-entry-button").live('click', function(p_oEvent) {
+    p_oEvent.stopPropagation();
+    var currentId = $j(this).attr("id").split("_")[3];
+    var current_tr = $j(this).parents(".duplicate-item:first");
+    var cloned_id = $j(this).parents(".duplicate-item:first").attr("id");
+    var to_delete_tr = $j("tr#" + currentId);
+    $j.ajax({
+        url: '<?php print $this->getUrl('*/*/getDuplicate'); ?>',
+        type: 'GET',
+        data: {product_id:cloned_id},
+        success: function(response) {
+            // to_delete_tr.remove();
+            current_tr.after("<tr id='" + currentId + "' class='entry-row'><td>&nbsp;</td><td class='1'>" + response + "</td></tr>");
+        }
+    });
+});
+
+
+
+</script>
+<?php print $this->getChildHtml('multiple.grid'); ?>

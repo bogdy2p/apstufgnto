@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <BTS_1610Fix>
+            <version>1</version>
+        </BTS_1610Fix>
+    </modules>
+    <global>
+        <models>
+            <bts1610_fix>
+                <class>BTS_1610Fix_Model</class>
+            </bts1610_fix>
+            <core>
+                <rewrite>
+                    <store>BTS_1610Fix_Model_Store</store>
+                </rewrite>
+            </core>
+        </models>
+    </global>
+</config>

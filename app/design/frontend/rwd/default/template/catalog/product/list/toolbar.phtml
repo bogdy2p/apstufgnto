@@ -1,0 +1,117 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Product list toolbar
+ *
+ * @see Mage_Catalog_Block_Product_List_Toolbar
+ */
+?>
+<?php if($this->getCollection()->getSize()): ?>
+<div class="toolbar">
+	<?php 
+	$_current_category = Mage::registry('current_category');
+	$category_name = '';
+	if($_current_category!=null){
+		$category_name =$_current_category->getName(); 
+	}
+	?>
+	<div class="amount">
+		<?php if($category_name){ ?>
+			<strong class="amount-total"><?php echo $this->getTotalNum(); ?></strong><span> found in </span><strong><?php echo $category_name;?></strong>	
+		<?php }else{ ?>
+			<strong class="amount-total"><?php echo $this->getTotalNum(); ?></strong><span> search results found</span>
+		<?php } ?>
+		
+	</div>
+    <div class="pager">
+ 		<?php if( $this->isEnabledViewSwitcher() ): ?>
+        <p class="view-mode">
+            <?php $_modes = $this->getModes(); ?>
+            <?php if($_modes && count($_modes)>1): ?>
+            <label><?php echo $this->__('View as') ?>:</label>
+            <select id="viewmodes" name="view-modes">
+            	<?php foreach ($this->getModes() as $_code=>$_label): ?>
+	                <?php if($this->isModeActive($_code)): ?>
+	                    <option selected="selected" value=""><?php echo $_label ?></option>
+	                <?php else: ?>
+	                	<option value="<?php echo $this->getModeUrl($_code);?>"><?php echo $_label ?></option>
+	                <?php endif; ?>
+            	<?php endforeach; ?>
+            </select>
+            <?php endif; ?>
+        </p>
+        <script type="text/javascript">
+        	jQuery(document).ready(function(){
+        		jQuery('#viewmodes').change(function(){
+        			window.location=jQuery(this).val();
+        		});
+        	});
+        </script>
+        <?php endif; ?>
+        <div class="sort-by">
+            <label><?php echo $this->__('Sort Results By') ?></label>
+            <!-- Custom sorter -->
+            <?php 
+                $postOrderBy = $this->getRequest()->getParam($this->getOrderVarName());
+                if($postOrderBy == "subject" || $postOrderBy == "") {
+                    $isSubjectOrder = true;
+                } else {
+                    $isSubjectOrder = false;
+                }
+            ?>
+            <select onchange="setLocation(this.value)">
+                <option value="<?php echo $this->getOrderUrl('subject', 'asc') ?>"   <?php if($isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('SUBJECT') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_date', 'asc') ?>"   <?php if( $this->isOrderCurrent('entry_date') && $this->getCurrentDirection() == 'asc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Date - Ascending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_date', 'desc') ?>"  <?php if( $this->isOrderCurrent('entry_date') && $this->getCurrentDirection() == 'desc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Date - Descending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_mapmaker', 'asc') ?>" <?php if( $this->isOrderCurrent('entry_mapmaker') && $this->getCurrentDirection() == 'asc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Mapmaker - Ascending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_mapmaker', 'desc') ?>" <?php if( $this->isOrderCurrent('entry_mapmaker') && $this->getCurrentDirection() == 'desc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Mapmaker - Descending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_artist', 'asc') ?>" <?php if( $this->isOrderCurrent('entry_artist') && $this->getCurrentDirection() == 'asc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Artist - Ascending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('entry_artist', 'desc') ?>" <?php if( $this->isOrderCurrent('entry_artist') && $this->getCurrentDirection() == 'desc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Artist - Descending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('price', 'asc') ?>" <?php if( $this->isOrderCurrent('price') && $this->getCurrentDirection() == 'asc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Price - Ascending') ?></option>
+                <option value="<?php echo $this->getOrderUrl('price', 'desc') ?>" <?php if( $this->isOrderCurrent('price') && $this->getCurrentDirection() == 'desc' && !$isSubjectOrder): ?> selected="selected"<?php endif; ?>><?php echo $this->__('Price - Descending') ?></option>
+            </select>
+            <!-- Custom sorter -->
+        </div>
+
+        <div class="limiter">
+            <label><?php echo $this->__('Show') ?></label>
+            <select onchange="setLocation(this.value)">
+            <?php foreach ($this->getAvailableLimit() as  $_key=>$_limit): ?>
+                <option value="<?php echo $this->getLimitUrl($_key) ?>"<?php if($this->isLimitCurrent($_key)): ?> selected="selected"<?php endif ?>>
+                    <?php echo $_limit ?>
+                </option>
+            <?php endforeach; ?>
+            </select> <?php echo $this->__('per page') ?>
+        </div>
+
+        <?php echo $this->getPagerHtml() ?>
+
+    </div>
+
+</div>
+<?php endif ?>

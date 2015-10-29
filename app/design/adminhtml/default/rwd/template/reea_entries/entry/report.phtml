@@ -1,0 +1,162 @@
+<html>
+<head>
+<?php 
+	$_grid = Mage::registry('report_grid');
+	// print_r($_grid->getColumns());
+	
+	
+	$filter = $_grid->getParam('product_filter');
+	$filters = $this->helper('adminhtml')->prepareFilterString($filter);
+	$filters_html = '';
+	foreach($_grid->getColumns() as $column){
+
+		$index = $column->getIndex();
+		if(!$index) continue;
+		if(array_key_exists($index,$filters)){
+			if($index=='price'){
+				if(isset($filters[$index]['from']) || isset($filters[$index]['to'])){
+					$price_html = '';
+					if(isset($filters[$index]['from'])){
+						$price_html.=$column->getHeader().' '.$filters[$index]['from'];
+					}
+					
+					if(isset($filters[$index]['to'])){
+						if(isset($filters[$index]['from'])){
+							$price_html.='-'.$filters[$index]['to'];	
+						}else{
+							$price_html.=$column->getHeader().' '.$filters[$index]['to'];
+						}
+					}
+					$filters_html.=$price_html.' + ';
+				}
+			}else{
+				$protected_attributes = array('status','entry_is_sold','entry_hide','entry_on_hold','entry_is_featured');
+				if(in_array($index,$protected_attributes)===TRUE){
+					$attribute = Mage::getModel('catalog/resource_eav_attribute')
+	            	->loadByCode(Mage_Catalog_Model_Product::ENTITY,$index);
+					$label=$attribute->getFrontendLabel();
+					$filters_html.=$column->getHeader().'='.$label.' + ';	
+				}else{
+					$filters_html.=$column->getHeader().'='.$filters[$index].' + ';	
+				}
+			}
+		}
+	}
+	$filters_html = trim($filters_html,' + ');
+	
+	$categoryId = Mage::getSingleton('core/session')->getCategoryId();
+	
+	$category = Mage::getModel('catalog/category')->load($categoryId);
+	$title = '';
+	
+	if($category->getLevel()==2){
+		$title.='Category:'.$category->getName();
+	}else{
+		
+		$parent_cat = $category = Mage::getModel('catalog/category')->load($category->getParentId());
+		$title.='Category:'.$parent_cat->getName().' - Catalogue:'.$category->getName();
+	}
+	
+	$title = $title.' '.$filters_html;
+	
+	
+	$mediaBackend = Mage::getModel('catalog/product_attribute_backend_media');
+	$mediaGalleryAttribute = Mage::getModel('eav/config')->getAttribute(Mage::getModel('catalog/product')->getResource()->getTypeId(), 'media_gallery');
+	$mediaBackend->setAttribute($mediaGalleryAttribute);
+	
+	$products = Mage::app()->getRequest()->getParam('internal_product');
+	if($products){
+		$_collection=Mage::getModel('catalog/product')
+					->getCollection()
+					->addAttributeToFilter('entity_id', array('in' => explode(",",$products)))
+					->addAttributeToSelect('*');
+	}else{
+		$_collection = $_grid->getCollection();	
+	}
+?>
+	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<title><?php print $title; ?></title>
+	<link href="<?php print $this->getSkinUrl(); ?>print_files/print.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div class="standard">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+			<tr>
+						<td valign="middle" colspan="2" style="height:60px;"><div style="text-align: center;font-weight:bold;font-size:20px;text-transform: uppercase;"><?php echo $title;?></div></td>
+					</tr>					
+		<?php $_count = 0; ?>
+		<?php $_general_counter = 0; ?>
+		<?php $_total_count = 0; ?>
+		<?php foreach ($_collection as $_index => $_entry): ?>
+		<?php if (!$_count): ?><tr><?php endif; ?>
+		<?php $_count++; ?>
+		<?php $_general_counter++; ?>
+		<?php $_total_count++; ?>
+		<?php $mediaBackend->afterLoad($_entry);?>
+		<td style="padding:0px;border: 1px solid #cccccc; border-collapse: collapse; height: 150px;" width="50%" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%;">
+				<tr>
+					<td valign="top" style="width: 150px; border-right: 1px solid #cccccc;">
+						<?php if (!empty($_entry['image'])): ?><img src="<?php print Mage::helper('catalog/image')->init($_entry, 'image', $_entry['image'])->resize(140)->__toString(); ?>" /><?php endif; ?>
+					<td>
+						
+					<td valign="top" style="padding: 5px;">
+						<h3 class="normal"><?php if ($_entry->getEntryDate()): ?><?php print $this->escapeHtml($_entry->getEntryDate()); ?>&nbsp;&#8212;&nbsp;<?php endif; ?><?php print $this->escapeHtml($_entry->getName()); ?></h3>
+						<?php print $this->escapeHtml($_entry->getSku()); ?><br />
+						<?php if ($_entry->getEntryMapmaker()): ?>
+							<?php print $this->escapeHtml($_entry->getEntryMapmaker()); ?>
+							<?php $_from_year = $_entry->getData('entry_mapmaker_from_year');?>
+							<?php $_to_year = $_entry->getData('entry_mapmaker_to_year');?>
+							<?php if (!empty($_from_year) || !empty($_to_year)): ?>
+							(<?php print !empty($_from_year)?$this->escapeHtml($_from_year):'?'; ?>-<?php print !empty($_to_year)?$this->escapeHtml($_to_year):'?'; ?>)
+							<?php endif; ?>
+						<?php endif; ?>
+						<div class="clear"></div>
+						<p class="f-left"><?php $_entry_date = $_entry->getEntryDate(); ?><?php print !empty($_entry_date)?$this->escapeHtml($_entry_date):'?'; ?></p><p class="f-right"><?php print Mage::helper('core')->currency($_entry->getPrice(), true, false); ?></p>
+						<div style="clear:both;">
+							<?php $media_gallery = $_entry->getMediaGallery();
+							foreach($media_gallery['images'] as $key=>$value){
+								// pr($value['file'],false);
+								// pr($_entry->getImage(),false);
+								if($value['file']==$_entry->getImage()){
+									if($value['file_size_default']){ ?>
+										Image Filename : <?php echo $value['file'];?><br />
+										Image Size: <?php echo $value['file_size_default'];?><br />
+										Image Date: <?php echo $value['creation_date_default'];?><br />
+									<?php }		
+								}
+							}
+						?>
+						</div>
+						<div class="clear"></div>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<?php if ($_count === 2): ?></tr><?php $_count = 0; ?><?php endif; ?>
+		<?php if ($_general_counter === 10): ?>
+		<?php $_general_counter = 0; ?>
+		
+		</table>
+		<?php if ($_total_count < $_collection->count()): ?>
+		<div class="pagebreak"></div>		
+		<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+		<tr>
+			<td style="height:100px;">&nbsp;
+		<?php endif; ?>
+		<?php endif; ?>
+		
+		<?php endforeach; ?>
+		
+			<?php if ($_general_counter): ?>
+
+			&nbsp;
+			</td></tr>
+		</table>
+		
+				</td>
+			</tr>
+		<?php endif; ?>
+		</table>
+	</div>
+</body></html>

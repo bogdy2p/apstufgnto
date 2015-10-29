@@ -1,0 +1,42 @@
+<?php
+//pr(array_keys($this->getData()));
+//pr($this->getType());
+//pr(get_class($this));
+/**
+ * @see Mage_Adminhtml_Block_Catalog_Form_Renderer_Fieldset_Element
+ */
+?>
+<?php $_element = $this->getElement() ?>
+<?php $this->checkFieldDisable() ?>
+<?php //pr($_element->debug());?>
+
+<div class="form-element <?php print $_element->getExtraCssClass(); ?>">
+	<?php if ($_element->getType()=='hidden'): ?>
+	<?php echo trim($_element->getElementHtml()) ?>
+	<?php else: ?>
+	<!-- label -->
+	<!--<div style="border: 0px solid blue; padding: 0px; margin: 0px;" class="f-left">-->
+	<?php if (!$_element->getHideLabel()): ?>
+	<?php echo trim($this->getElementLabelHtml()) ?>
+	<?php endif; ?>
+	<!--</div>-->
+	<!-- value -->
+	<!--<div style="border: 0px solid red; padding: 0px; margin: 0px;" class="f-left">-->
+	<?php if ($_element->getBeforeElementHtml()) : ?>
+	<span><?php echo $_element->getBeforeElementHtml(); ?></span>
+	<?php endif; ?>
+	<?php echo trim($this->getElementHtml()) ?>
+	<!--</div>-->
+	<?php if ($_element->getNote()) : ?>
+		<p class="note"><?php echo $_element->getNote() ?></p>
+	<?php endif; ?>
+	<!-- scope label -->
+	<!--<span class="nobr"><?php echo $this->getScopeLabel() ?></span>-->
+	<?php if ($this->canDisplayUseDefault()): ?>
+	<!-- value use-default -->
+		<input <?php if($_element->getReadonly()):?> disabled="disabled"<?php endif; ?> type="checkbox" name="use_default[]" id="<?php echo $_element->getHtmlId() ?>_default"<?php if ($this->usedDefault()): ?> checked="checked"<?php endif; ?> onclick="toggleValueElements(this, this.parentNode.parentNode)" value="<?php echo $this->getAttributeCode() ?>"/>
+		<label for="<?php echo $_element->getHtmlId() ?>_default" class="normal"><?php echo $this->__('Use Default Value') ?></label>
+	<?php endif; ?>
+	<?php endif; ?>
+	<div style="clear: both"></div>
+</div>

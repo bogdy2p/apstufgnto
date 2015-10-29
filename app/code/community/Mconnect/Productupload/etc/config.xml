@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category   Mconnect
+ * @package   Mconnect_Productupload
+ * @author     M-Connect Solutions. (http://www.mconnectsolutions.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+-->
+<config>
+    <modules>
+        <Mconnect_Productupload>
+            <version>0.1.0</version>
+        </Mconnect_Productupload>
+    </modules>
+    <blocks>
+            <productupload>
+                <rewrite>
+         <productupload>Mconnect_Productupload_Block_Productupload</productupload>
+        </rewrite>
+            </productupload>
+     </blocks>         
+    <frontend>
+        <routers>
+            <productupload>
+                <use>standard</use>
+                <args>
+                    <module>Mconnect_Productupload</module>
+                    <frontName>productupload</frontName>
+                </args>
+            </productupload>
+        </routers>
+        <layout>
+            <updates>
+                <productupload>
+                    <file>productupload.xml</file>
+                </productupload>
+            </updates>
+        </layout>        
+    </frontend>
+    <global>
+    <!--Table Installation -->
+    <!--Start-->
+        <models>
+            <productupload>                                                   
+                <class>Mconnect_Productupload_Model</class>
+                 <resourceModel>productupload_mysql4</resourceModel>
+            </productupload>
+            <productupload_mysql4>
+            <class>Mconnect_Productupload_Model_Mysql4</class>
+            <entities>
+                    <mconnectuploadfile>
+                        <table>mconnectuploadfile</table>
+                    </mconnectuploadfile>
+            </entities>
+            </productupload_mysql4>
+        </models>
+        <resources>
+            <mconnect_productupload_setup>
+                <setup>
+                    <module>Mconnect_Productupload</module>
+                </setup>
+                    <connection>
+                     <use>core_setup</use>
+                    </connection>
+            </mconnect_productupload_setup>
+            <productupload_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </productupload_write>
+            <productupload_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </productupload_read>
+       </resources>
+       <blocks>
+            <productupload>
+                <class>Mconnect_Productupload_Block</class>
+            </productupload>
+        </blocks>
+       <helpers>
+            <productupload>
+                <class>Mconnect_Productupload_Helper</class>
+            </productupload>  
+       </helpers>       
+    </global>    
+    <adminhtml>
+        <events>
+            <core_block_abstract_prepare_layout_after>
+                <observers>
+                    <mconnect_productupload_injectTabs>
+                        <type>singleton</type>
+                        <class>productupload/observer_product</class>
+                        <method>injectTabs</method>
+                    </mconnect_productupload_injectTabs>
+                </observers>
+            </core_block_abstract_prepare_layout_after>
+            
+            <!--//relu-->
+            <!--<catalog_product_save_after>
+                <observers>
+                    <mconnect_save_product_data>
+                        <type>singleton</type>
+                        <class>productupload/observer_product</class>
+                        <method>saveTabData</method>
+                    </mconnect_save_product_data>
+                </observers>
+            </catalog_product_save_after>-->
+
+        </events>
+    
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <productupload translate="title" module="productupload"> 
+                                        <title>Inchoo - All</title>
+                                    </productupload>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+    
+    </adminhtml> 
+    
+            
+</config>

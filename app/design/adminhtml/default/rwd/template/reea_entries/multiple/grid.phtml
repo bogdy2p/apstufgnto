@@ -1,0 +1,492 @@
+<?php
+/**
+ * * @category    design
+ * @package     default_default
+ * @copyright   Reea
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Template for Mage_Adminhtml_Block_Widget_Grid
+ *
+ *  getId()
+ *  getCollection()
+ *  getColumns()
+ *  getPagerVisibility()
+ *  getVarNamePage()
+ */
+
+$_filterColumns_part_1 = array(
+	'stock_number',
+	'name',
+	'subject',
+	'subsubject',
+	'entry_date'
+);
+
+$_filterColumns_part_2 = array(
+	'entry_artist',
+	'entry_author',
+	'entry_mapmaker',
+	'meta_keyword',
+	'price'
+);
+
+$_filterColumns_part_3 = array(
+	'category_ids'
+);
+
+$_columnsByIndex = array();
+
+foreach ($this->getColumns() as $_column) {
+	$_columnsByIndex[$_column->getIndex()] = $_column;
+}
+
+$numColumns = sizeof($this->getColumns());
+?>
+<?php if($this->getCollection()): ?>
+    <?php if($this->canDisplayContainer()): ?>
+        <?php if($this->getGridHeader()): ?>
+        <div class="content-header">
+            <table cellspacing="0">
+                <tr>
+                    <td style="width:50%;"><h2><?php echo $this->getGridHeader(); ?></h2></td>
+                </tr>
+            </table>
+        </div>
+        <?php endif ?>
+
+        <div id="<?php echo $this->getId() ?>">
+    <?php else: ?>
+        <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+    <?php endif; ?>
+<?php if($this->getPagerVisibility() || $this->getExportTypes() || $this->getFilterVisibility()): ?>
+    <table cellspacing="0" class="actions">
+        <tr>
+        <?php if($this->getPagerVisibility()): ?>
+            <td class="pager">
+            <?php echo $this->__('Page') ?>
+
+            <?php $_curPage  = $this->getCollection()->getCurPage() ?>
+            <?php $_lastPage = $this->getCollection()->getLastPageNumber() ?>
+            <?php if($_curPage>1): ?>
+                <a href="#" title="<?php echo $this->__('Previous page') ?>" onclick="<?php echo $this->getJsObjectName() ?>.setPage('<?php echo ($_curPage-1) ?>');return false;"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_left.gif') ?>" alt="Go to Previous page" class="arrow"/></a>
+            <?php else: ?>
+                <img src="<?php echo $this->getSkinUrl('images/pager_arrow_left_off.gif') ?>" alt="Go to Previous page" class="arrow"/>
+            <?php endif; ?>
+
+            <input type="text" name="<?php echo $this->getVarNamePage() ?>" value="<?php echo $_curPage ?>" class="input-text page" onkeypress="<?php echo $this->getJsObjectName() ?>.inputPage(event, '<?php echo $_lastPage ?>')"/>
+
+            <?php if($_curPage < $_lastPage): ?>
+                <a href="#" title="<?php echo $this->__('Next page') ?>" onclick="<?php echo $this->getJsObjectName() ?>.setPage('<?php echo ($_curPage+1) ?>');return false;"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_right.gif') ?>" alt="Go to Next page" class="arrow"/></a>
+            <?php else: ?>
+                <img src="<?php echo $this->getSkinUrl('images/pager_arrow_right_off.gif') ?>" alt="Go to Previous page" class="arrow"/>
+            <?php endif; ?>
+
+            <?php echo $this->__('of %s pages', $this->getCollection()->getLastPageNumber()) ?>
+            <span class="separator">|</span>
+            <?php echo $this->__('View') ?>
+            <select name="<?php echo $this->getVarNameLimit() ?>" onchange="<?php echo $this->getJsObjectName() ?>.loadByElement(this)">
+                <option value="5"<?php if($this->getCollection()->getPageSize()==5): ?> selected="selected"<?php endif; ?>>5</option>
+                <option value="10"<?php if($this->getCollection()->getPageSize()==10): ?> selected="selected"<?php endif; ?>>10</option>
+                <option value="15"<?php if($this->getCollection()->getPageSize()==15): ?> selected="selected"<?php endif; ?>>15</option>
+                <option value="20"<?php if($this->getCollection()->getPageSize()==20): ?> selected="selected"<?php endif; ?>>20</option>
+                <option value="30"<?php if($this->getCollection()->getPageSize()==30): ?> selected="selected"<?php endif; ?>>30</option>
+            </select>
+            <?php echo $this->__('per page') ?><span class="separator">|</span>
+            <?php echo $this->__('Total %d records found', $this->getCollection()->getSize()) ?>
+            <span id="<?php echo $this->getHtmlId() ?>-total-count" class="no-display"><?php echo $this->getCollection()->getSize() ?></span>
+            <?php if($this->getRssLists()): ?>
+                <?php foreach ($this->getRssLists() as $_rss): ?>
+                <span class="separator">|</span><a href="<?php echo $_rss->getUrl() ?>" class="link-feed"><?php echo $_rss->getLabel() ?></a>
+                <?php endforeach ?>
+            <?php endif; ?>
+        </td>
+    <?php endif ?>
+    <?php if($this->getExportTypes()): ?>
+        <td class="export a-right">
+            <img src="<?php echo $this->getSkinUrl('images/icon_export.gif') ?>" alt="" class="v-middle"/>&nbsp; <?php echo $this->__('Export to:') ?>
+            <select name="<?php echo $this->getId() ?>_export" id="<?php echo $this->getId() ?>_export" style="width:8em;">
+            <?php foreach ($this->getExportTypes() as $_type): ?>
+                <option value="<?php echo $_type->getUrl() ?>"><?php echo $_type->getLabel() ?></option>
+            <?php endforeach; ?>
+            </select>
+            <?php echo $this->getExportButtonHtml() ?>
+        </td>
+    <?php endif; ?>
+        <td class="filter-actions a-right">
+            <?php //echo $this->getMainButtonsHtml() ?>
+        </td>
+        </tr>
+    </table>
+<?php endif; ?>
+<?php if($this->getMassactionBlock()->isAvailable()): ?>
+<?php echo $this->getMassactionBlockHtml() ?>
+<?php endif ?>
+<div class="grid">
+    <div class="hor-scroll">
+<table cellspacing="0" class="data" id="">
+        <?php foreach ($this->getColumns() as $_column): ?>
+            <col <?php echo $_column->getHtmlProperty() ?> />
+        <?php endforeach; ?>
+        <?php if ($this->getHeadersVisibility() || $this->getFilterVisibility()): ?>
+            
+            <thead>
+                <?php if ($this->getHeadersVisibility()): ?>
+                    <tr class="headings">
+                        <?php foreach ($this->getColumns() as $_column): ?>
+                            <?php // pr($_column->getIndex(),false); ?>
+                            <?php if ($_column->getDoNotRender()) continue; ?>
+                            <th<?php echo $_column->getHeaderHtmlProperty() ?>><span class="nobr"><?php echo $_column->getHeaderHtml() ?></span></th>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endif; ?>
+              
+                <?php if ($this->getFilterVisibility()): ?>
+                    <tr class="filter custom-filter">
+                    <?php $i=$j=0;foreach ($this->getColumns() as $_column): ?>
+                        <?php // pr($_column->getIndex(),false); ?>
+                        <?php if ($_column->getDoNotRender()) continue; ?>
+                        <th<?php echo $_column->getHeaderHtmlProperty() ?>>
+                            <?php echo $_column->getFilterHtml() ?>
+                            <?php if ('filter_title' == $_column->getId()): ?>
+                                <div class="clear"></div>
+                                <ul class="filter-list">
+                                    <?php foreach ($_filterColumns_part_1 as $_columnIndex): ?>
+                                        <?php $_column = $_columnsByIndex[$_columnIndex]; ?>
+                                        <li>
+                                            <?php echo $_column->getHeaderHtml(); ?>
+                                            <?php echo $_column->getFilterHtml(); ?>
+                                            <div class="clear"></div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <ul class="filter-list f-left">
+                                    <?php foreach ($_filterColumns_part_2 as $_columnIndex): ?>
+                                        <?php $_column = $_columnsByIndex[$_columnIndex]; ?>
+										<li>
+											<?php echo $_column->getHeaderHtml(); ?>
+											<?php echo $_column->getFilterHtml(); ?>
+											<div class="clear"></div>
+										</li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <ul class="filter-list f-left">		
+                                	<li>
+										<?php $filterValue = $_columnsByIndex["status"]->getFilter()->getValue(); ?>
+										<a class="not-sort" title="asc" name="status" href="#">
+											<span class="sort-title">Status</span>
+										</a>
+										<select id="multipleEntriesGrid_product_filter_status" class="no-changes" name="status">
+											<option value=""></option>
+											<option value="1" <?php print ($filterValue == "1")?'selected':''; ?>>Enabled</option>
+											<option value="2" <?php print ($filterValue == "2")?'selected':''; ?>>Disabled</option>
+										</select>
+										<div class="clear"></div>
+									</li>			
+                                    <li>
+										<?php $filterValue = $_columnsByIndex["entry_is_sold"]->getFilter()->getValue(); ?>
+										<a class="not-sort" title="asc" name="entry_is_sold" href="#">
+											<span class="sort-title">Is sold</span>
+										</a>
+										<select id="multipleEntriesGrid_product_filter_entry_is_sold" class="no-changes" name="entry_is_sold">
+											<option value=""></option>
+											<option value="1" <?php print ($filterValue == "1")?'selected':''; ?>>Sold</option>
+											<option value="0" <?php print ($filterValue == "0")?'selected':''; ?>>Unsold</option>
+										</select>
+										<div class="clear"></div>
+									</li>
+									<li>
+										<?php $filterValue = $_columnsByIndex["entry_hide"]->getFilter()->getValue(); ?>
+										<a class="not-sort" title="asc" name="entry_hide" href="#">
+											<span class="sort-title">Hidden</span>
+										</a>
+										<select id="multipleEntriesGrid_product_filter_entry_hide" class="no-changes" name="entry_hide">
+											<option value=""></option>
+											<option value="1" <?php print ($filterValue == "1")?'selected':''; ?>>Hidden</option>
+											<option value="0" <?php print ($filterValue == "0")?'selected':''; ?>>Public</option>
+										</select>
+										<div class="clear"></div>
+									</li>
+									<li>
+										<?php $filterValue = $_columnsByIndex["entry_on_hold"]->getFilter()->getValue(); ?>
+										<a class="not-sort" title="asc" name="entry_on_hold" href="#">
+											<span class="sort-title">On Hold</span>
+										</a>
+										<select id="multipleEntriesGrid_product_filter_entry_on_hold" class="no-changes" name="entry_on_hold">
+											<option value=""></option>
+											<option value="1" <?php print ($filterValue == "1")?'selected':''; ?>>On Hold</option>
+											<option value="0" <?php print ($filterValue == "0")?'selected':''; ?>>Not on Hold</option>
+										</select>
+										<div class="clear"></div>
+									</li>
+									<li>
+										<?php $filterValue = $_columnsByIndex["entry_is_featured"]->getFilter()->getValue(); ?>
+										<a class="not-sort" title="asc" name="entry_is_featured" href="#">
+											<span class="sort-title">Featured</span>
+										</a>
+										<select id="multipleEntriesGrid_product_filter_entry_is_featured" class="no-changes" name="entry_is_featured">
+											<option value=""></option>
+											<option value="1" <?php print ($filterValue == "1")?'selected':''; ?>>Featured</option>
+											<option value="0" <?php print ($filterValue == "0")?'selected':''; ?>>Not Featured</option>
+										</select>
+										<div class="clear"></div>
+									</li>
+                                </ul>
+                                <ul class="filter-list f-left">
+                                    <?php foreach ($_filterColumns_part_3 as $_columnIndex): ?>
+                                        <?php $_column = $_columnsByIndex[$_columnIndex]; ?>
+										<li>
+											<?php echo $_column->getHeaderHtml(); ?>
+											<?php echo $_column->getFilterHtml(); ?>
+											<div class="clear"></div>
+										</li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <div class="clear"></div>
+                                <div class="search-buttons"><?php echo $this->getMainButtonsHtml() ?></div>
+                            <?php endif; ?>
+                        </th>
+                    <?php $j++;endforeach; ?>
+                    </tr>
+                <?php endif ?>
+            </thead>
+        <?php endif; ?>
+        <?php if ($this->getCountTotals()): ?>
+            <tfoot>
+                <tr class="totals">
+                <?php foreach ($this->getColumns() as $_column): ?>
+                    <th class="<?php echo $_column->getCssProperty() ?>"><?php echo ($_column->hasTotalsLabel()) ? $_column->getTotalsLabel() : $_column->getRowField($_column->getGrid()->getTotals()) ?>&nbsp;</th>
+                <?php endforeach; ?>
+                </tr>
+            </tfoot>
+        <?php endif; ?>
+</table>
+</div>
+</div>
+
+<?php $_form_id = time(); ?>
+<!-- CUSTOM CODE: start -->
+<form name="add_edit_multiple_entries" id="add_edit_multiple_entries_<?php print $_form_id; ?>-validate" action="<?php print $this->getUrl('*/*/savePost'); ?>" method="post">
+<input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+<!-- CUSTOM CODE: end -->
+<div class="grid">
+    <div class="hor-scroll">
+    <table cellspacing="0" class="data" id="<?php echo $this->getId() ?>_table">
+        <tbody>
+            <?php //if (($this->getCollection()->getSize()>0) && (!$this->getIsCollapsed())): ?>
+            <?php $j=0; foreach ($this->getCollection() as $_index=>$_item): ?>
+                <?php $prod =  Mage::getModel('catalog/product')->load($_item->getId()); ?>
+                <?php if($prod->getId()): ?>
+                    <?php $_item->setCloneId($_form_id + $j++)?>
+                    <!-- added a custom class to each row from the grid -->
+
+                    <tr id="<?php print $_item->getId();?>" title="<?php echo $this->getRowUrl($_item) ?>"<?php if ($_class = $this->getRowClass($_item)):?> class="entry-row <?php echo $_class; ?> <?php print !$_item->getInNewEmtpyEntry() ?'duplicate-item':'';?>"<?php else: ?> class="entry-row <?php print !$_item->getInNewEmtpyEntry() ?'duplicate-item':'';?>" <?php endif;?> >
+                        <!-- custom code: for new entries we hide the first cell of the row -->
+                        <?php $_column_count = 0;?>
+                        <?php $i=0;foreach ($this->getColumns() as $_column): ?>
+                        <!-- custom code: for new entries we hide the first cell of the row -->
+                            <?php if (!$_column_count++ && $_item->getInNewEmtpyEntry()):?>
+                                <td>&nbsp;</td>
+                            <?php else:?>
+                                <?php if ($this->shouldRenderCell($_item, $_column) && $i <= 1 ) :?>
+                                    <?php $_rowspan = $this->getRowspan($_item, $_column);?>
+                                    <td <?php echo ($_rowspan ? 'rowspan="' . $_rowspan . '" ' : '') ?>class="<?php echo $i . $_column->getCssProperty() ?> <?php echo ++$i==$numColumns?'last':'' ?>">
+                                        <?php echo (($_html = $_column->getRowField($_item)) != '' ? $_html : '&nbsp;') ?>
+                                    </td>
+                                    <?php if ($this->shouldRenderEmptyCell($_item, $_column)):?>
+                                        <td colspan="<?php echo $this->getEmptyCellColspan($_item)?>" class="last-stull"><?php echo $this->getEmptyCellLabel()?></td>
+                                    <?php endif;?>
+                                <?php endif;?>
+                            <?php endif;?>
+                        <?php endforeach; ?>
+                    </tr>
+                    <?php if ($_multipleRows = $this->getMultipleRows($_item) && 1==2):?>
+                        <?php foreach ($_multipleRows as $_i):?>
+                        <tr>
+                            <?php $i=0;foreach ($this->getMultipleRowColumns($_i) as $_column): ?>
+                                <td class="<?php echo $_column->getCssProperty() ?> <?php echo ++$i==$numColumns-1?'last':'' ?>">
+                                    <?php echo (($_html = $_column->getRowField($_i)) != '' ? $_html : '&nbsp;') ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                        <?php endforeach;?>
+                    <?php endif;?>
+
+                    <?php if ($this->shouldRenderSubTotal($_item) && 1==2): ?>
+                        <tr class="subtotals">
+                            <?php $i = 0; foreach ($this->getSubTotalColumns() as $_column): ?>
+                                <td class="<?php echo $_column->getCssProperty() ?> <?php echo ++$i == $numColumns ? 'last' : '' ?>">
+                                    <?php echo ($_column->hasSubtotalsLabel() ? $_column->getSubtotalsLabel() :
+                                        $_column->getRowField($this->getSubTotalItem($_item))
+                                    );
+                                    ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endif; ?>
+                <?php endif;?>
+            <?php endforeach; ?> 
+            <?php //elseif ($this->getEmptyText()): ?>
+                <!--<tr>
+                    <td class="empty-text <?php echo $this->getEmptyTextClass() ?>" colspan="<?php echo $numColumns ?>"><?php echo $this->getEmptyText() ?></td>
+                </tr>-->
+            <?php //endif; ?>
+        </tbody>
+
+    </table>
+    </div>
+</div>
+<!-- CUSTOM CODE: start -->
+<input type="hidden" id="gallery" class="hidden-form-data" name="gallery" value="" />
+</form>
+<script type="text/javascript">
+Reea.MultipleEntry.form = new varienForm('add_edit_multiple_entries_<?php print $_form_id; ?>-validate');
+//alert(<?php print $_form_id; ?>);
+</script>
+<!-- CUSTOM CODE: end -->
+<!-- Display the pager at the bottom of the screen -->
+<?php if($this->getPagerVisibility() || $this->getExportTypes() || $this->getFilterVisibility()): ?>
+    <table cellspacing="0" class="actions">
+        <tr>
+        <?php if($this->getPagerVisibility()): ?>
+            <td class="pager">
+            <?php echo $this->__('Page') ?>
+
+            <?php $_curPage  = $this->getCollection()->getCurPage() ?>
+            <?php $_lastPage = $this->getCollection()->getLastPageNumber() ?>
+            <?php if($_curPage>1): ?>
+                <a href="#" title="<?php echo $this->__('Previous page') ?>" onclick="<?php echo $this->getJsObjectName() ?>.setPage('<?php echo ($_curPage-1) ?>');return false;"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_left.gif') ?>" alt="Go to Previous page" class="arrow"/></a>
+            <?php else: ?>
+                <img src="<?php echo $this->getSkinUrl('images/pager_arrow_left_off.gif') ?>" alt="Go to Previous page" class="arrow"/>
+            <?php endif; ?>
+
+            <input type="text" name="<?php echo $this->getVarNamePage() ?>" value="<?php echo $_curPage ?>" class="input-text page" onkeypress="<?php echo $this->getJsObjectName() ?>.inputPage(event, '<?php echo $_lastPage ?>')"/>
+
+            <?php if($_curPage < $_lastPage): ?>
+                <a href="#" title="<?php echo $this->__('Next page') ?>" onclick="<?php echo $this->getJsObjectName() ?>.setPage('<?php echo ($_curPage+1) ?>');return false;"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_right.gif') ?>" alt="Go to Next page" class="arrow"/></a>
+            <?php else: ?>
+                <img src="<?php echo $this->getSkinUrl('images/pager_arrow_right_off.gif') ?>" alt="Go to Previous page" class="arrow"/>
+            <?php endif; ?>
+
+            <?php echo $this->__('of %s pages', $this->getCollection()->getLastPageNumber()) ?>
+            <span class="separator">|</span>
+            <?php echo $this->__('View') ?>
+            <select name="<?php echo $this->getVarNameLimit() ?>" onchange="<?php echo $this->getJsObjectName() ?>.loadByElement(this)">
+                <option value="5"<?php if($this->getCollection()->getPageSize()==5): ?> selected="selected"<?php endif; ?>>5</option>
+                <option value="10"<?php if($this->getCollection()->getPageSize()==10): ?> selected="selected"<?php endif; ?>>10</option>
+                <option value="15"<?php if($this->getCollection()->getPageSize()==15): ?> selected="selected"<?php endif; ?>>15</option>
+                <option value="25"<?php if($this->getCollection()->getPageSize()==25): ?> selected="selected"<?php endif; ?>>25</option>
+                <option value="50"<?php if($this->getCollection()->getPageSize()==50): ?> selected="selected"<?php endif; ?>>50</option>
+            </select>
+            <?php echo $this->__('per page') ?><span class="separator">|</span>
+            <?php echo $this->__('Total %d records found', $this->getCollection()->getSize()) ?>
+            <span id="<?php echo $this->getHtmlId() ?>-total-count" class="no-display"><?php echo $this->getCollection()->getSize() ?></span>
+            <?php if($this->getRssLists()): ?>
+                <?php foreach ($this->getRssLists() as $_rss): ?>
+                <span class="separator">|</span><a href="<?php echo $_rss->getUrl() ?>" class="link-feed"><?php echo $_rss->getLabel() ?></a>
+                <?php endforeach ?>
+            <?php endif; ?>
+        </td>
+    <?php endif ?>
+    <?php if($this->getExportTypes()): ?>
+        <td class="export a-right">
+            <img src="<?php echo $this->getSkinUrl('images/icon_export.gif') ?>" alt="" class="v-middle"/>&nbsp; <?php echo $this->__('Export to:') ?>
+            <select name="<?php echo $this->getId() ?>_export" id="<?php echo $this->getId() ?>_export" style="width:8em;">
+            <?php foreach ($this->getExportTypes() as $_type): ?>
+                <option value="<?php echo $_type->getUrl() ?>"><?php echo $_type->getLabel() ?></option>
+            <?php endforeach; ?>
+            </select>
+            <?php echo $this->getExportButtonHtml() ?>
+        </td>
+    <?php endif; ?>
+        <td class="filter-actions a-right">
+            <?php //echo $this->getMainButtonsHtml() ?>
+        </td>
+        </tr>
+    </table>
+<?php endif; ?>
+<!-- END - Display the pager at the bottom of the screen -->
+<?php if($this->canDisplayContainer()): ?>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+    <?php echo $this->getJsObjectName() ?> = new varienGrid('<?php echo $this->getId() ?>', '<?php echo $this->getGridUrl() ?>', '<?php echo $this->getVarNamePage() ?>', '<?php echo $this->getVarNameSort() ?>', '<?php echo $this->getVarNameDir() ?>', '<?php echo $this->getVarNameFilter() ?>');
+    <?php echo $this->getJsObjectName() ?>.useAjax = '<?php echo $this->getUseAjax() ?>';
+    <?php if($this->getRowClickCallback()): ?>
+        <?php echo $this->getJsObjectName() ?>.rowClickCallback = <?php echo $this->getRowClickCallback() ?>;
+    <?php endif; ?>
+    <?php if($this->getCheckboxCheckCallback()): ?>
+        <?php echo $this->getJsObjectName() ?>.checkboxCheckCallback = <?php echo $this->getCheckboxCheckCallback() ?>;
+    <?php endif; ?>
+    <?php if($this->getRowInitCallback()): ?>
+        <?php echo $this->getJsObjectName() ?>.initRowCallback = <?php echo $this->getRowInitCallback() ?>;
+        <?php echo $this->getJsObjectName() ?>.initGridRows();
+    <?php endif; ?>
+    <?php if($this->getMassactionBlock()->isAvailable()): ?>
+    <?php echo $this->getMassactionBlock()->getJavaScript() ?>
+    <?php endif ?>
+    <?php echo $this->getAdditionalJavaScript(); ?>
+//]]>
+</script>
+<?php endif; ?>
+<?php endif ?>
+<script type="text/javascript">
+Reea.MultipleEntry.form.submit = function() {
+	
+	if (Reea.MultipleEntry.form.validator && Reea.MultipleEntry.form.validator.validate()) {
+            Reea.MultipleEntry.initFormSubmit('add_edit_multiple_entries_<?php print $_form_id; ?>-validate');	
+
+            // perform ajax validation 
+
+            var l_bIsValid = true;
+
+            $j.ajax({
+                url: '<?php print $this->getUrl('*/*/validate'); ?>',
+                dataType: 'json',
+                type: 'POST',
+                data: $j('#add_edit_multiple_entries_<?php print $_form_id; ?>-validate').serialize(),
+                success: function(p_oJSON) {
+                    for (var l_iEntryId in p_oJSON) {
+                        var l_oError = p_oJSON[l_iEntryId];
+
+                        console.log(l_oError);
+
+                        if (l_oError.error === true) {
+                            // we have an error for this entry
+                            $j('div#entry_errors_' + l_iEntryId + ' span').html(l_oError.message);
+                            $j('div#entry_errors_' + l_iEntryId).show();
+
+                            l_bIsValid = false;
+                        }
+                        else {
+                            $j('div#entry_errors_' + l_iEntryId + ' span').html('');
+                            $j('div#entry_errors_' + l_iEntryId).hide();
+                        }           
+
+                    //;
+                    }
+
+                    if (l_bIsValid) {
+                        $('add_edit_multiple_entries_<?php print $_form_id; ?>-validate').submit();
+                    }
+                }
+            });		
+		
+	}
+	return false;
+
+};
+$j(function(){
+    var tabindex = 1;
+    $j('tr.filter').find('input,select').each(function() {
+        if (this.type != "hidden") {
+            var $input = $j(this);
+            $input.attr("tabindex", tabindex);
+            tabindex++;
+        }
+    });
+});
+
+</script>

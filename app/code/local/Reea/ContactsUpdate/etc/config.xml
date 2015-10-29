@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Reea_ContactsUpdate>
+            <version>0.1.0</version>
+        </Reea_ContactsUpdate>
+    </modules>
+
+    <frontend>
+        <routers>
+            <contactsupdate>
+                <use>standard</use>
+                <args>
+                    <module>Reea_ContactsUpdate</module>
+                    <frontName>contactsupdate</frontName>
+                </args>
+            </contactsupdate>
+
+            <contacts>
+                <args>
+                    <modules>
+                        <Reea_ContactsUpdate before="Mage_Contacts">Reea_ContactsUpdate</Reea_ContactsUpdate>
+                    </modules>
+                </args>
+            </contacts> 
+        </routers>
+
+        <layout>
+            <updates>
+                <contactsupdate>
+                    <file>contactsupdate.xml</file>
+                </contactsupdate>
+            </updates>
+        </layout>        
+    </frontend>
+
+    <global>
+        <helpers>
+            <contactsupdate>
+                <class>Reea_ContactsUpdate_Helper</class>
+            </contactsupdate>
+        </helpers>        
+    </global>
+</config>

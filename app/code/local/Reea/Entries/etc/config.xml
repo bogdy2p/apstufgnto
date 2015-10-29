@@ -1,0 +1,271 @@
+<?xml version="1.0"?>
+<config>
+	
+	<modules>
+            <Reea_Entries>
+                <version>0.0.19</version>
+            </Reea_Entries>
+	</modules>
+	
+	<admin>
+            <routers>
+                <reea_entries>
+                    <use>admin</use>
+                    <args>
+                        <module>Reea_Entries</module>
+                        <frontName>reea_entries</frontName>
+                    </args>
+                </reea_entries>
+            </routers>
+        </admin>
+	
+	<adminhtml>
+	
+		<layout>
+                    <updates>
+                        <reea_entries>
+                            <file>reea_entries.xml</file>
+                        </reea_entries>
+                    </updates>
+		</layout>
+		
+		<events>
+		    
+                    <adminhtml_block_html_before>
+                        <observers>
+                            <reea_entries_adminhtml_block_html_before>
+                                <class>reea_entries/observer</class>
+                                <method>adminhtml_block_html_before</method>
+                            </reea_entries_adminhtml_block_html_before>
+                        </observers>
+                    </adminhtml_block_html_before>
+                    <catalog_product_save_before>
+                        <observers>
+                            <reea_entries_catalog_product_save_before>
+                                <class>reea_entries/observer</class>
+                                <method>catalog_product_save_before</method>
+                            </reea_entries_catalog_product_save_before>
+                        </observers>
+                    </catalog_product_save_before>
+
+                    <catalog_product_save_after>
+                        <observers>
+                            <reea_entries_catalog_product_save_after>
+                                <type>singleton</type>
+                                <class>reea_entries/observer</class>
+                                <method>catalog_product_save_after</method>
+                            </reea_entries_catalog_product_save_after>
+                            <reea_entries_save_product_data>
+                                <type>singleton</type>
+                                <class>reea_entries/observer</class>
+                                <method>saveTabData</method>
+                            </reea_entries_save_product_data>
+                        </observers>
+                    </catalog_product_save_after>
+		</events>
+	
+	</adminhtml>
+	
+	<global>
+        <fieldsets>
+            <sales_convert_quote_item>
+                <stock_number>
+                    <to_order_item>*</to_order_item>
+                </stock_number>
+            </sales_convert_quote_item>
+            <sales_convert_order_item>
+                <stock_number>
+                    <to_quote_item>*</to_quote_item>
+                </stock_number>
+            </sales_convert_order_item>
+        </fieldsets>
+        
+        <models>
+            
+            <reea_entries>
+                <class>Reea_Entries_Model</class>
+                <resourceModel>reea_entries_mysql4</resourceModel>
+            </reea_entries>
+            
+            <reea_entries_mysql4>
+                <class>Reea_Entries_Model_Mysql4</class>
+            </reea_entries_mysql4>
+
+            <catalog_resource>
+                <rewrite>
+                    <product>Reea_Entries_Model_Rewrite_Catalog_Resource_Product</product>
+                    <product_attribute_backend_media>Reea_Entries_Model_Rewrite_Catalog_Resource_Product_Attribute_Backend_Media</product_attribute_backend_media>
+                    <category>Reea_Entries_Model_Rewrite_Catalog_Resource_Category</category>
+                    <category_tree>Reea_Entries_Model_Rewrite_Catalog_Resource_Category_Tree</category_tree>
+                    <category_indexer_product>Reea_Entries_Model_Rewrite_Catalog_Resource_Category_Indexer_Product</category_indexer_product>
+                </rewrite>
+            </catalog_resource>
+			
+            <catalog>
+                <rewrite>
+                    <product_attribute_backend_media>Reea_Entries_Model_Rewrite_Catalog_Product_Attribute_Backend_Media</product_attribute_backend_media>
+                    <layer>Reea_Entries_Model_Layer</layer>
+                </rewrite>
+            </catalog>
+			
+			
+            <directory>
+                <rewrite>
+                    <currency>Reea_Entries_Model_Currency</currency>
+                </rewrite>
+            </directory>
+            
+            <core>
+                <rewrite>
+                    <locale>Reea_Entries_Model_Locale</locale>
+                </rewrite>
+            </core>
+                  
+        </models>
+        
+        <resources>
+
+            <reea_entries_setup>
+                    <setup>
+                            <module>Reea_Entries</module>
+                            <class>Mage_Eav_Model_Entity_Setup</class>
+                    </setup>
+                    <connection>
+                            <use>core_setup</use>
+                    </connection>
+            </reea_entries_setup>
+
+            <reea_entries_read>
+                    <connection>
+                            <use>core_read</use>
+                    </connection>
+            </reea_entries_read>
+
+            <reea_entries_write>
+                    <connection>
+                            <use>core_write</use>
+                    </connection>
+            </reea_entries_write>
+
+        </resources>
+		
+        <blocks>
+            <reea_entries>
+                <class>Reea_Entries_Block</class>
+            </reea_entries>
+            <adminhtml>
+                <rewrite>
+                    <catalog_category_edit_form>Reea_Entries_Block_Form</catalog_category_edit_form>
+                    <catalog_product_helper_form_price>Reea_Entries_Block_Adminhtml_Catalog_Product_Helper_Form_Price</catalog_product_helper_form_price>
+                    <customer_edit_tabs>Reea_Entries_Block_Adminhtml_Customer_Edit_Tabs</customer_edit_tabs>
+                </rewrite>
+            </adminhtml>
+      		
+            <!--<page>
+                <rewrite>
+                    <html_topmenu>Reea_Entries_Block_Page_Html_Topmenu</html_topmenu> 
+                </rewrite>
+            </page>-->
+        </blocks>
+        
+        <helpers>			
+            <reea_entries>
+                <class>Reea_Entries_Helper</class>
+            </reea_entries>			
+        </helpers>
+        
+        <events>
+            
+            <sales_quote_item_set_product>
+                <observers>
+                    <reea_entries_stock_number>
+                        <class>reea_entries/observer</class>
+                        <method>salesQuoteItemSetStockNumberAttribute</method>
+                    </reea_entries_stock_number>
+                </observers>
+            </sales_quote_item_set_product>
+            
+            <catalog_product_save_after>
+                    <observers>
+                            <reea_entries_catalog_product_save_after>
+                                    <class>reea_entries/observer</class>
+                                    <method>catalog_product_save_after</method>
+                            </reea_entries_catalog_product_save_after>
+                    </observers>
+            </catalog_product_save_after>
+            <controller_action_layout_load_before>
+                <observers>
+                    <reea_entries_controller_action_layout_load_before>
+                        <class>reea_entries/observer</class>
+                        <method>controller_action_layout_load_before</method>
+                    </reea_entries_controller_action_layout_load_before>
+                </observers>
+            </controller_action_layout_load_before>
+            
+            
+            <sales_model_service_quote_submit_after>
+            	<observers>
+                    <reea_entries_sales_model_service_quote_submit_after>
+                        <class>reea_entries/observer</class>
+                        <method>sales_model_service_quote_submit_after</method>
+                    </reea_entries_sales_model_service_quote_submit_after>
+                </observers>
+            	
+            </sales_model_service_quote_submit_after>
+            
+            <catalog_product_media_save_before>
+            	<observers>
+                    <reea_entries_catalog_product_media_save_before>
+                        <class>reea_entries/observer</class>
+                        <method>catalog_product_media_save_before</method>
+                    </reea_entries_catalog_product_media_save_before>
+                </observers>
+            </catalog_product_media_save_before>
+        </events>
+        
+	<template>
+            <email>
+                <reea_entries_email_to_a_friend_admin module="Reea_Entries">
+                    <label>Email to a friend (Administration)</label>
+                    <file>reea_entries_email_to_a_friend_administration.html</file>
+                    <type>html</type>
+                </reea_entries_email_to_a_friend_admin>
+            </email>
+	</template>
+	
+	<sales>
+            <quote>
+                <item>
+                    <product_attributes>
+                        <stock_number />
+                    </product_attributes>
+                </item>
+            </quote>
+        </sales>
+    		
+    </global>
+	
+    <frontend>
+        <layout>
+            <updates>
+                <reea_entries>
+                    <file>reea_entries.xml</file>
+                </reea_entries>
+            </updates>
+        </layout>
+    </frontend>
+	
+    <frontend>
+        <product>
+            <collection>
+                <attributes>
+                    <description/>
+                    <publication_details/>
+                    <purchase_product/>
+                    <online_product/>
+                </attributes>
+            </collection>
+        </product>
+    </frontend>
+	
+</config>

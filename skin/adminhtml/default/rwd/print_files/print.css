@@ -1,0 +1,154 @@
+/* $Id: print.css,v 1.10 2007/11/07 04:16:42 paul Exp $ */
+
+/* print template styles */
+
+body {
+	margin: 1em;
+	font-family: "times new roman", georgia, garamond, serif;
+	font-size: 11pt;
+}
+
+.imageright {
+	float: right;
+}
+
+.imageleft {
+	float: left;
+}
+
+.imagecenter {
+	text-align: center;
+}
+
+dl dt {
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+dl dd {
+	padding: 0;
+	margin: 0;
+	margin-bottom: 0.8em;
+	margin-left: 0.4em;
+}
+
+img {
+	padding: 5px;
+	border: 1px solid #000000;
+}
+
+img.logo, img.noborder {
+	padding: 0;
+	border: none;
+}
+
+h2 {
+	font-size: 1.4em;
+	text-align: center;
+}
+
+h3 {
+	font-size: 1.1em;
+	margin: 0;
+}
+
+address {
+	font-style: normal;
+}
+
+.show {
+	display: none;
+}
+
+td.subtext {
+	font-size: smaller;
+	text-align: center;
+}
+
+td.subtext p {
+	margin: 0;
+	margin-bottom: 0.6em;
+}
+
+div.table {
+	padding: 0.7em;
+}
+
+div.table td {
+	font-size: smaller;
+}
+
+div.table td span {
+	padding-left: 5px;
+	font-size: medium;
+	font-weight: bold;
+}
+
+dl dt {
+	float: left;
+}
+
+dl dd {
+	margin-left: 8em;
+}
+
+table.desc th {
+	font-size: 14pt;
+	font-weight: bold;
+	text-align: left;
+	width: 180px;
+}
+
+hr.pagebreak {
+	display: none;
+}
+
+table.te {
+	border: 1px solid #000;
+	border-width: 1px 0 0 1px;
+	margin-bottom: 6px;
+}
+
+.te td, .te th {
+	border: 1px solid #000;
+	border-width: 0 1px 1px 0;
+	padding: 2px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.te caption {
+	text-align: left;
+	border: 1px solid #000;
+	border-bottom: 0;
+	padding: 2px;
+	font-weight: bold;
+}
+
+table.desc th {
+	vertical-align: top;
+}
+
+@media print {
+	/* rules inside this will apply only when actually printing */
+	.vanish {
+		display: none;
+	}
+	
+	.show {
+		display: block;
+	}
+
+	hr.pagebreak {
+		 page-break-after: always;
+		 display: none;
+	}
+}
+
+.f-left {
+	float: left;
+}
+
+.f-right {
+	float: right;
+}

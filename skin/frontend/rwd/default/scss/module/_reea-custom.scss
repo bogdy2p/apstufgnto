@@ -1,0 +1,33 @@
+
+/* ============================================ *
+ * Reea RWD Template Customization Main SCSS
+ * ============================================ */
+
+.page{
+
+    background-color: #F3E9BE;
+    .page-header{
+        background-color: #2C564C;
+        .logo{
+            /*background-color: red;*/
+            max-width: 780px;
+            min-height: 90px;
+        }
+        #header-nav{
+            background-color: #416F64;
+            a {
+                color: white;
+            }
+        }
+    }
+    
+    
+    .footer{
+        background-color: #2C564C;
+        a {
+            color: white;
+        }
+    }
+}
+
+/*#416F64*/

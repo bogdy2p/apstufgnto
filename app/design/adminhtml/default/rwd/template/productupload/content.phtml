@@ -1,0 +1,118 @@
+<?php
+
+
+  /**
+ * M-Connect Solutions.
+ *
+ * NOTICE OF LICENSE
+ *
+
+ * It is also available through the world-wide-web at this URL:
+ * http://www.mconnectsolutions.com/lab/
+ *
+ * @category   M-Connect
+ * @package    M-Connect
+ * @copyright  Copyright (c) 2009-2010 M-Connect Solutions. (http://www.mconnectsolutions.com)
+ */
+
+
+?>
+
+<script type="text/javascript">
+function deleteAttachmentFile(fileAboutToRemoveID,fileAboutToRemove)
+{
+
+    if(confirm('Are you sure to Remove "'+fileAboutToRemove+'"'))
+    {
+    var reloadurl = '<?php echo $this->getUrl('productupload/index/deletefile') ?>';
+    //alert(Element.show('loadingmask'));
+    Element.show('loading-mask');
+    new Ajax.Request(reloadurl, {
+    method: 'post',
+    parameters: 'RmID='+fileAboutToRemoveID+'&prodID='+<?php echo Mage::registry('product')->getId(); ?>,
+    onComplete: function(transport) {
+    Element.hide('loading-mask');
+    $('output-file-attached-div').innerHTML = "";
+    $('output-file-attached-div').innerHTML = transport.responseText;
+     
+    }
+    });
+        
+    }    
+
+}
+</script>
+<!--<div id="loadingmask" style="display: none;">
+<div class="loader" id="loading-mask-loader"><img src="<?php //echo str_replace("index.php/","",$this->getUrl()) ?>skin/adminhtml/default/default/images/ajax-loader-tr.gif" alt="<?php //echo $this->__('Loading...') ?>"/><?php //echo $this->__('Loading...') ?></div>
+<div id="loading-mask"></div>
+</div>-->
+<div class="form-element f-left textalign-left">
+
+    <!--<div class="entry-edit-head">-->
+        <label>Upload PDF File:</label>
+    <!--</div>-->
+    <div id="pdf_upload" class="">
+
+
+        <div class="hor-scroll">
+            <table cellspacing="0" class="form-list">
+                <tbody>
+                    <tr>
+                        <td>
+                        <input type="file" name="mconnectfile" id="mconnectfile" />
+                        <!--http://localhost/magento/index.php/admin/catalog_product/save-->
+                        <!--<form name="form" action="<?php //echo $this->getUrl('/catalog_product/save'); ?>" method="post">
+                        Please Choose The File:  <input type="file" name="mconnectfile" />
+                        </form>-->
+                        <label><strong>Files Attached:</strong></label>
+                        <div id="output-file-attached-div">
+                        <?php
+                        $productupload_Model = Mage::getModel('productupload/mconnectuploadfile'); 
+                        $productupload_Collection = $productupload_Model->getCollection()                        
+                        ->addFilter('productid',Mage::registry('product')->getId())
+                        //->addFieldToSelect(array('filename'))
+                        ->getData();
+                        //echo '<pre>'; print_r($productupload_Collection);
+                        //echo '<pre>'; print_r($productuploadModel->getCollection()->addFilter('productid',Mage::registry('product')->getId())->getData()); 
+                        //print_r(get_class_methods($productuploadModel)); 
+                        
+                        $existanceCnt = 0;
+                        if(count($productupload_Collection) > 0)
+                        {
+                        ?><ul>
+                        <?php foreach($productupload_Collection as $file):
+                        if($file['filename'] != '' && file_exists(Mage::getBaseDir(Mage_Core_Model_Store::URL_TYPE_MEDIA).'/'.$file['filename']))
+                        {
+                            $filename_arr = explode('/',$file['filename']);
+                            $filename_str = strtoupper($filename_arr[count($filename_arr)-1]);
+                        ?>    
+                        <li><a href="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).$file['filename']; ?>" title="<?php echo $filename_str; ?>" target="_blank"><?php echo $filename_str; ?></a>
+                        &nbsp;&nbsp;<img onclick="deleteAttachmentFile('<?php echo $file['mconnectuploadfile_id']; ?>','<?php echo $filename_str; ?>');" src="<?php echo $this->getSkinUrl('images/icon_btn_delete.gif'); //echo $this->getSkinUrl('images/erase.png'); ?>" title="Click here to remove '<?php echo strtoupper($filename_str); ?>' from the disk." style="cursor:pointer;" /></li>
+                        <?php
+                        $existanceCnt++;
+                        }                     
+                        endforeach; 
+                        ?></ul>
+                        <?php }
+                        else
+                        {
+                            echo "<ul><li>No Files attached.</li></ul>";
+                            $existanceCnt++;
+                        }
+                        
+                        if($existanceCnt == 0)
+                        {
+                            echo "<ul><li>No Files attached.</li></ul>";                                    
+                        }
+                        
+                        ?> 
+                        </div>
+                           
+                        </td>
+                    </tr>
+    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

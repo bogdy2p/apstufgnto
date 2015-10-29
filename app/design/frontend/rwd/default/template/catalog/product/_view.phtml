@@ -1,0 +1,79 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+
+/**
+ * Product view template
+ *
+ * @see Mage_Catalog_Block_Product_View
+ * @see Mage_Review_Block_Product_View
+ */
+?>
+<?php $_helper = $this->helper('catalog/output'); ?>
+<?php $_product = $this->getProduct(); ?>
+
+<script type="text/javascript">
+    var optionsPrice = new Product.OptionsPrice(<?php echo $this->getJsonConfig() ?>);
+</script>
+
+<a class="left" href="javascript:window.close(this)"><?php echo $this->__('Click to Return to Catalogue Entry') ?></a>
+<a class="right" href="javascript:window.close(this)"><?php echo $this->__('Click to Return to Catalogue Entry') ?></a>
+
+<div class="product-image clear" >
+
+<div class="extra-zoom">
+    <img src="<?php echo $this->getSkinUrl('images/view.gif') ?>" alt="" width="18" height="15" border="0" align="middle">
+    <a href="#" title="<?php echo $this->__('Click again to View an Even Larger Image') ?>">
+        <strong><?php echo $this->__('Click again to View an Even Larger Image') ?></strong>
+    </a>
+</div>
+
+<a title="<?php echo $this->__('Click again to View an Even Larger Image') ?>" href="#">
+    <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->keepAspectRatio(true)->keepFrame(false)->resize(600, null);?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
+</a>
+
+<div class="extra-zoom">
+    <img src="<?php echo $this->getSkinUrl('images/view.gif') ?>" alt="" width="18" height="15" border="0" align="middle">
+    <a href="#" title="<?php echo $this->__('Click again to View an Even Larger Image') ?>">
+        <strong><?php echo $this->__('Click again to View an Even Larger Image') ?></strong>
+    </a>
+</div>
+
+</div>
+
+<div class="clear"></div>
+
+<div class="extra-zoom left">
+    <img src="<?php echo $this->getSkinUrl('images/view.gif') ?>" alt="" width="18" height="15" border="0" align="middle">
+    <a href="#" title="<?php echo $this->__('Click again to View an Even Larger Image') ?>">
+        <strong><?php echo $this->__('Click again to View an Even Larger Image') ?></strong>
+    </a>
+</div>
+<a class="right" href="javascript:window.close(this)"><?php echo $this->__('Click to Return to Catalogue Entry') ?></a>
+
+<div class="product-img-box">
+    <?php //echo $this->getChildHtml('media') ?>
+</div>
+

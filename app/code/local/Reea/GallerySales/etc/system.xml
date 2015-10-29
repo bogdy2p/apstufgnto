@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<config>
+    <sections>
+        <payment>
+            <groups>
+                <checkmo>
+                    <fields>
+                        <admin_title translate="label">
+                            <label>Admin Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </admin_title>
+                    </fields>
+                </checkmo>
+                <purchaseorder>
+                    <fields>
+                        <admin_title translate="label">
+                            <label>Admin Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </admin_title>
+                    </fields>
+                </purchaseorder>
+                <banktransfer>
+                    <fields>
+                        <admin_title translate="label">
+                            <label>Admin Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </admin_title>
+                    </fields>
+                </banktransfer>
+                <cashondelivery>
+                    <fields>
+                        <admin_title translate="label">
+                            <label>Admin Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </admin_title>
+                    </fields>
+                </cashondelivery>
+            </groups>
+        </payment>
+    </sections>
+</config>
