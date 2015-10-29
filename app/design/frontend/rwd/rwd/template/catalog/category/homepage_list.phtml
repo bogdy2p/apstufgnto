@@ -1,0 +1,30 @@
+<?php
+    $catCollection=Mage::getModel('catalog/category')->getCollection()->addAttributeToSelect('*')->addFieldToFilter('display_on_homepage',1);
+    
+    if(count($catCollection) != 0) {
+        ?>
+<div class="featured_catalogues">
+        <ul class="homepage_featured_categories">
+            <?php
+            foreach($catCollection as $cat) {
+                ?>
+                <li>
+                    <?php
+                        if($cat->getImageUrl()) {
+                            ?>
+                            <a href="<?php echo $cat->getUrl();?>" title="<?php $this->htmlEscape($cat->getName());?>">
+                            	<img class="featured_catalog_img" src="<?php echo $cat->getImageUrl();?>" alt="<?php $cat->getName();?>">
+                            </a>
+                            <?php
+                        }
+                    ?>
+                    <p><a href="<?php echo $cat->getUrl() ?>" title="<?php $this->htmlEscape($cat->getName()); ?>"><?php echo $cat->getName() ?></a></p>
+                </li>
+                <?php
+            }
+            ?>
+        </ul>
+</div>
+        <?php
+    } 
+?>

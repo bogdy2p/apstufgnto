@@ -1,0 +1,60 @@
+<?php 
+    $_productCollection=$this->getLoadedProductCollection();
+    $_helper = $this->helper('catalog/output');
+?>
+<?php if(!$_productCollection->count()): ?>
+<p class="note-msg"><?php echo $this->__('There are no products matching the selection.') ?></p>
+<?php else: ?>
+<div class="category-products">
+    <?php echo $this->getToolbarHtml() ?>
+
+    <?php // List mode ?>
+    <?php if($this->getMode()!='grid'): ?>
+    <?php $_iterator = 0; ?>
+    <ol class="products-list" id="products-list">
+    <?php foreach ($_productCollection as $_product): ?>
+        <li class="item<?php if( ++$_iterator == sizeof($_productCollection) ): ?> last<?php endif; ?>">
+            <div class="col1">
+                <?php $baseImageUrl = Mage::getModel('catalog/product_media_config')->getMediaUrl(Mage::getModel('catalog/product')->load($_product->getId())->getImage()); ?>
+                <a href="javascript:void(0);" class="product-image" title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>">
+                    <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->constrainOnly(true)->keepFrame(true)->resize(175, null); ?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
+                </a>          
+            </div>
+            <div class="product-shop" style="height:200px;">
+                <div class="f-fix">
+                <table id="product-listing-pdf">
+                    <tr class="title">
+                        <td class="label">
+                        	<div class="title"><?php print $_product->getName();?></div>
+                        	<div class="details"><?php print $_product->getPublicationDetails();?></div><br />
+                        	<div class="description"><?php print $_product->getDescription();?></div>
+                        </td>
+                        <td class="actions">
+                        	<?php 
+                        	 	$productupload_Model = Mage::getModel('productupload/mconnectuploadfile'); 
+                        		$productupload_Collection = $productupload_Model->getCollection()->addFilter('productid',$_product->getId())->getData();
+								if(count($productupload_Collection)>0){
+									$file=$productupload_Collection[0];
+									if(file_exists(Mage::getBaseDir(Mage_Core_Model_Store::URL_TYPE_MEDIA).'/'.$file['filename'])){ ?>
+										<p><a href="<?php echo Mage::getUrl('printerfriendly/index/download', array('file_id' => $file['mconnectuploadfile_id'])); ?>" class="buttons">Download PDF</a></p>
+									<?php }
+								}
+                        		?>  
+                        	<?php if($_product->getOnlineCatalogue()){ ?>
+                        		<p><a href="<?php print $_product->getOnlineCatalogue();?>" class="buttons">View Online</a></p>	
+                        	<?php } ?>
+                        	<?php if($_product->getPurchaseProduct()){ ?>
+                        		<p><a href="<?php print $_product->getProductUrl();?>" class="buttons">Purchase Catalogue</a></p>	
+                        	<?php } ?>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+            </div>
+        </li>
+    <?php endforeach; ?>
+    </ol>
+	</div>
+    <?php endif; ?>
+</div>
+<?php endif; ?>

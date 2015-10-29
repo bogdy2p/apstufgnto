@@ -1,0 +1,119 @@
+<?php
+    $catCollection=Mage::getModel('catalog/category')->getCollection()->addAttributeToSelect('*')->addFieldToFilter('display_on_homepage',1);
+?>    
+<?php if(count($catCollection) > 0):
+        ?>
+        <h2 class="featuredcategory_list_head"><?php echo $this->__('Featured Catalogues') ?></h2>
+        <ul id="featured_category" >
+        <?php
+                $i=0;
+                foreach($catCollection as $cat) {
+					
+					
+                        ?>
+                        <li>
+                        	<?php if($cat->getImageUrl()){ ?>
+                        	<a href="<?php echo $cat->getUrl()?> "><img src="<?php echo $cat->getImageUrl(); ?>" width="135" height="135" /></a>
+                            <br/>
+                        	<?php } ?>
+                            
+                            <a href="<?php echo $cat->getUrl()?> "><?php echo $cat->getName() ?></a></a>
+                        </li>
+                        
+                        <?php
+                        //if($i>=5) break;
+                }
+        ?>        
+        </ul>
+<?php endif ?>
+
+
+
+
+<div class="clear"></div>
+
+
+<h2><?php echo $this->__('Catalogue Index')?></h2>
+<?php
+$rootcategory = Mage::getModel('catalog/category')->load(Mage::app()->getStore()->getRootCategoryId());
+$rootcategories = explode(",", $rootcategory->getAllChildren());
+
+$cat_Collection = Mage::getModel('catalog/category')->getCollection()
+                            ->addAttributeToSelect('*')
+                            ->addFieldToFilter('entity_id',array('in'=>$rootcategories))
+                            ->setOrder('name', 'ASC');
+
+$arrCategories = array();
+
+if($cat_Collection->getSize()) {
+    
+    foreach($cat_Collection as $cat) {
+        $name = $cat->getName();
+        $arrCategories[$name[0]][$cat->getId()] = $cat;
+    }
+}
+?>
+
+<div id="letter-menu">
+    <p class="go-to">GO TO :</p>
+    <ul>
+        <?php
+        foreach(range("A","Z") as $letter) {
+        ?>
+            <li><a href="#"><?php echo strtoupper($letter)?></a></li>
+        <?php
+        }
+        ?>        
+    </ul>
+    <br/>
+</div>
+
+    <?php
+    if(count($arrCategories)) {
+        $categArray = array();
+         
+        foreach($arrCategories as $key=> $cats) {
+            foreach($cats as $cat) {
+                if($cat->getId() && $rootcategory->getId() != $cat->getId()) {           
+                    $categUrl = Mage::getUrl().$cat->getUrlPath(); 
+                    $categName = $cat->getName();
+                    array_push($categArray,array($categUrl, $categName));
+                }
+            }
+        }
+        $categNr = count($categArray);
+        $elemPerUl = round(count($categArray) / 3);
+        $i=0;
+        $generatedLetter="A";
+    }
+    ?>
+
+<div class="ul-catalogues">
+    <ul class="catalogues">
+        <li class="top-letter"><a id="<?php echo $generatedLetter; ?>"><?php echo $generatedLetter; ?></a></li>
+    <?php
+        foreach($categArray as $categ) {
+            $i++;
+            $firstLetter = strtoupper(substr($categ[1],0,1));
+            if ($firstLetter !== "." && $firstLetter !== $generatedLetter && !is_numeric($firstLetter)) {
+                $generatedLetter = substr($categ[1],0,1);
+                ?>
+                <li class="top-letter"><a id="<?php echo $generatedLetter; ?>"><?php echo $generatedLetter; ?></a></li>
+                <?php
+            }
+            ?>
+            <li><a href="<?php echo $categ[0]; ?>"><?php echo $categ[1]; ?></a></li>
+            <?php
+            if ($i == $elemPerUl || $i == $elemPerUl*2) {
+                ?>
+                    </ul>
+                    <ul class="catalogues">
+                <?php
+            } else if ($i == $categNr){
+                ?>
+                    </ul>
+                <?php
+            }
+        }
+    ?>
+</div>

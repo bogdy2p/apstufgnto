@@ -1,0 +1,224 @@
+<?php $_helper = $this->helper('catalog/output'); ?>
+<?php $_product = $this->getProduct(); 
+
+$_current_category = Mage::registry('current_category');
+$category_name = '';
+if($_current_category!=null){
+	$category_name =$_current_category->getName(); 
+}
+
+?>
+<div class="page-title category-title">
+    <h1><?php echo $category_name;?></h1>
+</div>
+<script type="text/javascript">
+    var optionsPrice = new Product.OptionsPrice(<?php echo $this->getJsonConfig() ?>);
+</script>
+<div id="messages_product_view"><?php echo $this->getMessagesBlock()->getGroupedHtml() ?></div>
+<div class="product-view">
+    <div class="product-essential">
+    <form action="<?php echo $this->getSubmitUrl($_product) ?>" method="post" id="product_addtocart_form"<?php if($_product->getOptions()): ?> enctype="multipart/form-data"<?php endif; ?>>
+        <div class="no-display">
+            <input type="hidden" name="product" value="<?php echo $_product->getId() ?>" />
+            <input type="hidden" name="related_product" id="related-products-field" value="" />
+        </div>
+        <div class="product-img-box">
+            <?php echo $this->getChildHtml('media') ?>
+        </div>
+	
+        <div class="product-shop">
+            <table cellpadding="10" cellspacing="0" border="0" class="product-shop-table">
+                <tr class="title">
+                    <td class="label"><?php echo $this->__("Title:") ?></td>
+                    <td class="content"><b style="color:#363636;"><?php echo $_helper->productAttribute($_product, $_product->getName() , 'name'); ?></b></td>
+                    <td rowspan="10" class="additional" style="text-align:center;font-family:Times New Roman;">
+                        <p class="printer-friendly"><?php echo $this->getChildHtml('addto');?></p>
+                        <p class="printer-friendly"><a href="<?php echo $this->helper('printerfriendly')->getPrintFriendlyUrl($_product) ?>" onclick="popWin('<?php echo $this->helper("printerfriendly")->getPrintFriendlyUrl($_product) ?>','compare','top:0,left:0,resizable=yes,scrollbars=yes'); return false; " ><?php echo $this->__('Printer Friendly Version') ?></a></p>
+                        <p class="printer-friendly"><a href="<?php echo $this->helper('catalog/product')->getEmailToFriendUrl($_product) ?>"><?php echo $this->__('Email to a Friend') ?></a></p>
+                        <?php echo $this->getChildHtml('addtocart') ?>
+                        <?php echo $this->getChildHtml('product_type_data') ?>
+                    </td>
+                </tr>
+                <tr class="title">
+                    <td class="label"><?php echo $this->__("Date:") ?></td>
+                    <?php 
+                        $productDate = $_product->getEntryDate();
+                        if($productDate) {
+                            $firstLetter = substr($productDate,0,1);
+
+                            if(strtoupper($firstLetter) !== "C") {
+                                $productDate = "C".$productDate;
+                            } else if (strlen(str_replace(' ', '', $productDate)) == 1) {
+                                $productDate = "N/A";                                               
+                            }
+                        }
+                        $productDate2 = $_product->getEntryDate2();
+                        //var_dump($productDate2);
+                        if($productDate2){
+                            $productDate.=' ('.$productDate2.')';
+                            $productDate = str_replace('C', '', $productDate);
+                        }
+                    ?>
+                    <td class="content"><?php echo $productDate; ?></td>
+                </tr>
+                <?php 
+                if(trim($_product->getEntryArtist())){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Artist:") ?></td>
+                        <td class="content">
+                                <?php echo $_product->getEntryArtist(); ?>&nbsp;
+                                <?php if($_product->getEntryArtistFromYear() && $_product->getEntryArtistToYear()){ ?>
+                                        (<?php echo $_product->getEntryArtistFromYear();?> - <?php echo $_product->getEntryArtistToYear();?>)
+                                <?php } ?>
+                        </td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if(trim($_product->getEntryAuthor())){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Author:") ?></td>
+                        <td class="content">
+                                <?php echo $_product->getEntryAuthor(); ?>&nbsp;
+                                <?php if($_product->getEntryAuthorFromYear() && $_product->getEntryAuthorToYear()){ ?>
+                                        (<?php echo $_product->getEntryAuthorFromYear();?> - <?php echo $_product->getEntryAuthorToYear();?>)
+                                <?php } ?>
+                        </td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if(trim($_product->getEntryMapmaker())){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Mapmaker:") ?></td>
+                        <td class="content">
+                                <?php echo $_product->getEntryMapmaker(); ?>&nbsp;
+                                <?php if($_product->getEntryMapmakerFromYear() && $_product->getEntryMapmakerToYear()){ ?>
+                                        (<?php echo $_product->getEntryMapmakerFromYear();?> - <?php echo $_product->getEntryMapmakerToYear();?>)
+                                <?php } ?>
+                        </td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if(trim($_product->getEntryEngraver())){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Engraver:") ?></td>
+                        <td class="content">
+                                <?php echo $_product->getEntryEngraver(); ?>&nbsp;
+                                <?php if($_product->getEntryEngraverFromYear() && $_product->getEntryEngraverToYear()){ ?>
+                                        (<?php echo $_product->getEntryEngraverFromYear();?> - <?php echo $_product->getEntryEngraverToYear();?>)
+                                <?php } ?>
+                        </td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if($_product->getData('entry_image_size_width') && $_product->getData('entry_image_size_height')){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Image Size:") ?></td>
+                        <td class="content"><?php echo $_product->getData('entry_image_size_width') . "mm x " . $_product->getData('entry_image_size_height') ."mm" ; ?></td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if($_product->getData('entry_frame_size_width') && $_product->getData('entry_frame_size_height')){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Frame Size:") ?></td>
+                        <td class="content"><?php echo $_product->getData('entry_frame_size_width') . "mm x " . $_product->getData('entry_frame_size_height') ."mm" ; ?></td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if($_product->getData('entry_condition')){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Condition:") ?></td>
+                        <td class="content"><?php echo $_product->getData('entry_condition'); ?></td>
+                    </tr>
+                <?php } ?>
+                <?php 
+                if($_product->getData('entry_technique')){ 
+                    $attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+                    $entry_technique = $attribute->getSource()->getOptionText($_product->getData('entry_technique'));	
+                ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Technique:") ?></td>
+                        <td class="content"><?php echo $entry_technique; ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Price:") ?></td>
+                        <td class="content"><?php echo $this->getChildHtml('product_type_data') ?></td>
+                    </tr>
+                <?php } ?> 
+                <tr>
+                    <td class="label" ><?php echo $this->__("Stock Number:") ?></td>
+					<?php 
+						$_stock_number = $_product->getStockNumber();
+						if($_product->getData('product_cost_code')){
+							$_stock_number.=' ('.strtoupper($_product->getData('product_cost_code')).')';
+						}
+						if($_product->getData('product_location')){
+							$_stock_number.=' ('.strtoupper($_product->getData('product_location')).')';
+						}
+					?>
+                    <td class="content" style="text-transform: uppercase;"><?php echo $_stock_number; ?></td>
+                </tr>
+            </table>
+            <?php if(trim($_product->getData('description'))){ ?>
+                <table cellpadding="10" cellspacing="0" border="0" class="product-shop-table">       
+                    <tr>
+                        <td class="label" style="width:143px;"><?php echo $this->__("Description:") ?></td> 
+                        <td class="content" colspan="2"><?php echo nl2br($_product->getData('description')); ?></td>
+                    </tr>
+                </table>
+            <?php }?>
+        </div>
+        <div class="clearer"></div>
+    </form>
+    <script type="text/javascript">
+    //<![CDATA[
+        var productAddToCartForm = new VarienForm('product_addtocart_form');
+        productAddToCartForm.submit = function(button, url) {
+            if (this.validator.validate()) {
+                var form = this.form;
+                var oldUrl = form.action;
+
+                if (url) {
+                   form.action = url;
+                }
+                var e = null;
+                try {
+                    this.form.submit();
+                } catch (e) {
+                }
+                this.form.action = oldUrl;
+                if (e) {
+                    throw e;
+                }
+
+                if (button && button != 'undefined') {
+                    button.disabled = true;
+                }
+            }
+        }.bind(productAddToCartForm);
+
+        productAddToCartForm.submitLight = function(button, url){
+            if(this.validator) {
+                var nv = Validation.methods;
+                delete Validation.methods['required-entry'];
+                delete Validation.methods['validate-one-required'];
+                delete Validation.methods['validate-one-required-by-name'];
+                // Remove custom datetime validators
+                for (var methodName in Validation.methods) {
+                    if (methodName.match(/^validate-datetime-.*/i)) {
+                        delete Validation.methods[methodName];
+                    }
+                }
+
+                if (this.validator.validate()) {
+                    if (url) {
+                        this.form.action = url;
+                    }
+                    this.form.submit();
+                }
+                Object.extend(Validation.methods, nv);
+            }
+        }.bind(productAddToCartForm);
+    //]]>
+    </script>
+    </div>
+</div>

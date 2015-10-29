@@ -1,0 +1,470 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Product list template
+ *
+ * @see Mage_Catalog_Block_Product_List
+ */
+?>
+<?php 
+	$has_poa = false;
+	$_current_category = Mage::registry('current_category');
+	if($_current_category){
+		if($_current_category->getData('poa_prices')==1){
+			$has_poa=true;		
+		}
+	}
+
+    $_productCollection=$this->getLoadedProductCollection();
+    $_helper = $this->helper('catalog/output');
+?>
+<?php if(!$_productCollection->count()): ?>
+<p class="note-msg"><?php echo $this->__('There are no products matching the selection.') ?></p>
+<?php else: ?>
+<div class="category-products">
+    <?php echo $this->getToolbarHtml() ?>
+
+    <?php // List mode ?>
+    <?php if($this->getMode()!='grid'): ?>
+    <?php $_iterator = 0; ?>
+    <ol class="products-list" id="products-list">
+    <?php foreach ($_productCollection as $_product): ?>
+
+        <?php 	
+            $product = Mage::getModel('catalog/product')->load($_product->getId());
+            /*
+            $attribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_on_hold');
+            $options = array();
+            foreach( $attribute->getSource()->getAllOptions(true, true) as $option ) {
+                if(empty($option['value'])) continue;
+                $options[$option['value']] = $option['label'];
+            }
+            $on_hold=false;
+            if(array_search('On Hold', $options)==$product->getEntryOnHold()) $on_hold=true;
+            */
+            if($_product->getEntryOnHold() == 0){
+                $on_hold = false;
+            } else {
+                $on_hold = true;
+            }
+            /*$product = Mage::getModel('catalog/product')->load($_product->getId());
+            $attribute = Mage::getModel('eav/config')->getAttribute('catalog_product', 'entry_is_sold');
+            $options = array();
+            foreach( $attribute->getSource()->getAllOptions(true, true) as $option ) {
+                    if(empty($option['value'])) continue;
+                    $options[$option['value']] = $option['label'];
+            }
+            $sold=false;
+            if(array_search('Sold', $options)==$product->getEntryIsSold()) $sold=true;
+            */
+            if($_product->getEntryIsSold()==0){
+                    $sold=false;
+            }else{
+                    $sold=true;
+            }
+        ?>
+
+
+        <li class="item<?php if( ++$_iterator == sizeof($_productCollection) ): ?> last<?php endif; ?>">
+
+            <?php // Product Image ?>
+
+            <div class="col1">
+                <!--Product image-->
+                <?php $baseImageUrl = Mage::getModel('catalog/product_media_config')->getMediaUrl(Mage::getModel('catalog/product')->load($_product->getId())->getImage()); ?>
+                <a href="<?php echo $_product->getProductUrl() ?>" 
+                	
+                title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>">
+                    <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->constrainOnly(true)->keepFrame(true)->resize(175, null); ?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
+                </a>
+
+                <!--View Larger Image-->
+                <a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" ><?php echo $this->__('View Larger Image') ?></a>
+				<div>
+					<?php 
+					$images = Mage::getModel('catalog/product')->load($_product->getId())->getMediaGalleryImages();
+					$i=0;
+					foreach($images as $kk=>$vv){
+						 $i++;
+						if($i==1) continue;
+						?>
+					<div style="float:left;width:80px;height:70px;margin:5px 5px 5px 0px;">
+						<img src="<?php echo $vv->getUrl(); ?>" style="width:80px;height:70px;" />
+					</div>
+					<?php }
+					?>
+				</div>
+					
+            </div>
+
+			
+			<?php 	
+					$subjects=array();
+					if(Mage::registry('current_category')){
+						$current_category_id = Mage::registry('current_category')->getId();
+						$_category_assignments = Mage::helper('reea_entries')->getProductCategoryAssignments($_product->getId());
+						if(array_key_exists($current_category_id, $_category_assignments)){
+							$subjects = $_category_assignments[$current_category_id];
+						}	
+					}
+					
+			?>
+            <?php // Product description ?>
+            <div class="product-shop">
+                <div class="f-fix">
+                <table id="product-listing">
+                
+                    <?php $_productNameStripped = $this->stripTags($_product->getName(), null, true); ?>
+
+                    <tr>
+                    	<td>&nbsp;</td>
+                    	<td colspan="2">
+                    		<span style="font-weight:bold;float:left;color:#70675B;font-size:1.0em;font-family:Times New Roman,Verdana,Sans-serif,Helvetica;text-transform:uppercase;">
+                                <?php echo $this->escapeHtml($subjects['subject']); ?><br/>
+                                <?php echo $this->escapeHtml($subjects['subsubject']); ?><br />
+                            </span>
+                         </td>
+                    </tr>
+                    <!--
+					
+                   	-->
+                    <tr class="title">
+                        <td class="label"><?php echo $this->__("Title:") ?></td>
+                        <td>
+                        	<b style="color:#363636;"><?php echo $_helper->productAttribute($_product, $_product->getName() , 'name'); ?></b>
+                        </td>
+                        <td class="third_col">&nbsp;</td>
+                    </tr>
+					<?php if($_product->getDescription()){ ?>
+                    <tr class="description"><!--description-->
+                        <td class="label"><?php echo $this->__("Description:") ?></td>
+                        <td colspan="2">
+			
+			
+                        	<?php
+                        		$extra_class=false;
+					$extra_link = '<span><a href="';
+					$extra_link .= $_product->getProductUrl() .'">';
+					$extra_link .= $this->__('Read full description');
+					$extra_link .= '</a></span>';
+					
+					
+                        		if(trim($_product->getDescription())){
+                        		$description = trim($_product->getDescription());
+                        		if(strlen($description)>700){
+                        			$extra_class=true;
+                        		}
+                        	}else{ 
+                        		$description = '';
+                        	} ?>
+                        	<div class="no-margin <?php print $extra_class?'description-wrap':'';?>"><?php print $description;?></div>
+				<?php print $extra_class ? $extra_link : '';?>
+				
+                        </td>
+                    </tr>
+                    <?php } ?>
+
+                    <tr>
+                        <td class="label"><?php echo $this->__("Date:") ?></td>
+                        <?php 
+                            $productDate = $_product->getEntryDate();
+                            if($productDate) {
+                                $firstLetter = substr($productDate,0,1);
+
+                                if(strtoupper($firstLetter) !== "C") {
+                                    $productDate = "C".$productDate;
+                                } else if (strlen(str_replace(' ', '', $productDate)) == 1) {
+                                    $productDate = "N/A";                                               
+                                }
+                            }
+							$productDate2 = $_product->getEntryDate2();
+							//var_dump($productDate2);
+							if($productDate2){
+								$productDate.=' ('.$productDate2.')';
+								$productDate = str_replace('C', '', $productDate);
+							}
+                        ?>
+                        <td><?php echo $productDate; ?></td>
+                        <td rowspan="6" class="actions" style="font-family:Times New Roman;">
+
+							<?php 	if($on_hold===true) : ?>
+                                                                    <button type="button"  title="<?php echo $this->__('Register your Interest in this Print') ?>" onclick="jQuery('input[name=dialog_product]').val(<?php print $_product->getId()?>);" class="button button-<?php print $_product->getId()?> dialog-item"><span><span><?php echo $this->__('Register your Interest in this Print') ?></span></span></button>
+							<?php	else: ?>
+							
+	                            <?php if($_product->isSaleable() && $has_poa==false && $sold==false): ?>
+	                                <button type="button" title="<?php echo $this->__('Purchase') ?>" class="button btn-cart" onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')"><span><span><?php echo $this->__('Purchase') ?></span></span></button>
+	                            <?php else: ?>
+	                            	<?php if($has_poa==false){ ?>
+	                            		<p class="availability out-of-stock"><span style="font-size:larger;font-weight:bold"><?php echo $this->__('Sold') ?></span></p>	
+	                            	<?php }else{ ?>
+	                            		<p class="availability out-of-stock"><span style="font-size:larger;font-weight:bold;color:#000000;"><?php echo $this->__('POA') ?></span></p>
+	                            	<?php } ?>
+	                                
+	                            <?php endif; ?>
+                            
+                            <?php endif;?>
+
+                            <?php if ($this->helper('wishlist')->isAllow()) : ?>
+                                <p class="add-to-wishlist">
+                                <a href="<?php echo $this->helper('wishlist')->getAddUrl($_product) ?>" class="link-wishlist"><?php echo $this->__('Add to Wishlist') ?>
+                                </a></p>
+                            <?php endif; ?>
+                            
+                                <p class="printer-friendly">
+                                    <a href="<?php echo $this->helper('printerfriendly')->getPrintFriendlyUrl($_product) ?>" onclick="popWin('<?php echo $this->helper("printerfriendly")->getPrintFriendlyUrl($_product) ?>','compare','top:0,left:0,resizable=yes,scrollbars=yes'); return false; " ><?php echo $this->__('Printer Friendly Version') ?></a>
+                                </p>
+
+                            <?php $sendToFriendModel = Mage::getModel('sendfriend/sendfriend'); ?>
+                            <?php if ($sendToFriendModel->canEmailToFriend()): ?>
+                            <p class="email-friend"><a href="<?php echo $this->helper('catalog/product')->getEmailToFriendUrl($_product) ?>"><?php echo $this->__('Email to a Friend') ?></a></p>
+                            <?php endif; ?>
+
+                        </td>
+                    </tr>
+                    <?php if($product->getEntryMapmaker()){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Mapmaker:") ?></td>
+                        <td>
+                        	<?php print $product->getEntryMapmaker()?$this->escapeHtml($product->getEntryMapmaker()):$this->__('N/A'); ?>
+                        	<?php if ($product->getEntryMapmakerToYear() && $product->getEntryMapmakerFromYear()){ ?>
+                        		(<?php print $product->getEntryMapmakerFromYear();?> - <?php print $product->getEntryMapmakerToYear();?>)
+                        	<?php } ?>
+                        </td>
+                    </tr>
+					<?php } ?>
+					<?php if($product->getEntryArtist()){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Artist:") ?></td>
+                        <td>
+                        	<?php print $product->getEntryArtist()?$this->escapeHtml($product->getEntryArtist()):$this->__('N/A'); ?>
+                        	<?php if ($product->getEntryArtistToYear() && $product->getEntryArtistFromYear()){ ?>
+                        		(<?php print $product->getEntryArtistFromYear();?> - <?php print $product->getEntryArtistToYear();?>)
+                        	<?php } ?>
+                        </td>
+                    </tr>
+					<?php } ?>
+					<?php if($product->getEntryAuthor()){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Artist:") ?></td>
+                        <td>
+                        	<?php print $product->getEntryAuthor()?$this->escapeHtml($product->getEntryAuthor()):$this->__('N/A'); ?>
+                        	<?php if ($product->getEntryAuthorToYear() && $product->getEntryAuthorFromYear()){ ?>
+                        		(<?php print $product->getEntryAuthorFromYear();?> - <?php print $product->getEntryAuthorToYear();?>)
+                        	<?php } ?>
+                        </td>
+                    </tr>
+					<?php } ?>
+					<?php if($product->getEntryEngraver()){ ?>
+                    <tr>
+                        <td class="label"><?php echo $this->__("Engraver:") ?></td>
+                        <td>
+                        	<?php print $product->getEntryEngraver()?$this->escapeHtml($product->getEntryEngraver()):$this->__('N/A'); ?>
+                        	<?php if ($product->getEntryEngraverToYear() && $product->getEntryEngraverFromYear()){ ?>
+                        		(<?php print $product->getEntryEngraverFromYear();?> - <?php print $product->getEntryEngraverToYear();?>)
+                        	<?php } ?>
+                        </td>
+                    </tr>
+					<?php } ?>
+                    
+		    <?php if($_product->getData('entry_image_size_width') != null && $_product->getData('entry_image_size_height') != null ) : ?>
+			<tr>
+			    <td class="label"><?php echo $this->__("Image Size:") ?></td>
+			    <td><?php echo ($_product->getData('entry_image_size_width') && $_product->getData('entry_image_size_height') )?$this->escapeHtml($_product->getData('entry_image_size_width') . "mm x " . $_product->getData('entry_image_size_height') ."mm" ):$this->__('N/A') ?></td>
+			</tr>
+		    <?php endif ?>
+					<?php if($_product->getData('entry_condition')){ ?>
+						<tr>
+                        	<td class="label"><?php echo $this->__("Condition:") ?></td>
+                        	<td><?php echo $_product->getData('entry_condition')?$this->escapeHtml($_product->getData('entry_condition')):$this->__('N/A') ?></td>
+                    	</tr>	
+					<?php } ?>
+                    
+					<?php if($_product->getData('entry_technique')){ ?>
+						<tr>
+	                        <td class="label"><?php echo $this->__("Technique:") ?></td>
+	                        <?php 
+							$attribute = Mage::getModel('catalog/product')->getResource()->getAttribute('entry_technique');
+							$entry_technique = $attribute->getSource()->getOptionText($_product->getData('entry_technique'));
+							?>
+	                        <td><?php echo $entry_technique?$entry_technique:$this->__('N/A') ?></td>
+                    	</tr>
+					<?php  } ?>
+                    <tr>
+                    	<td class="label"><?php echo $this->__('Stock Number: '); ?></td>
+                    	<td  style="text-transform: uppercase;"><?php print $this->escapeHtml($product->getData('stock_number')); ?></td>
+                    </tr>
+
+                    <tr>
+                        <td class="label"><?php echo $this->__("Price:") ?></td>
+                        <td>
+                        	<?php
+                        		if($has_poa==false){
+                        			if($on_hold===true){
+                                                    echo '<span id="on_hold" title="This item has been placed on temporary hold by a public institution but may become available for purchase.<br /> If you wish to be notified of this item’s availability, please click Register your Interest and enter your email address.<br /> Please note that we only hold items for public institutions due to their acquisition process and is not available to the general public">On Hold</span>';
+	                        		}elseif($sold===true){
+                                                    echo '<span style="font-size:larger;font-weight:bold;color:red;">Sold</span>';
+	                        		}else{
+	                        			echo $this->getPriceHtml($_product, true)?$this->getPriceHtml($_product, true):$this->__('N/A');	
+	                        		}	
+                        		}else{ ?>
+                        			<span style="font-size:larger;font-weight:bold;">POA</span>
+                        		<?php }
+                        		
+                        	?>
+                        </td>
+                    </tr>
+
+                </table>
+                </div>
+            </div>
+        </li>
+    <?php endforeach; ?>
+    </ol>
+    <div id="dialog" title="Register your Interest in this Print">
+    	<table class="dialog-table">
+    		<tr>
+    			<td>Name:</td>
+    			<td><input name="dialog_name" value="" /></td>
+    		</tr>
+    		<tr>
+    			<td>Email:</td>
+    			<td><input name="dialog_email" value="" /></td>
+    		</tr>
+    		<tr>
+    			<input type="hidden" name="dialog_product" value="" />
+    			<td colspan="2"><input type="button"  value="Submit" onclick="registerRequest();"/></td>
+    		</tr>
+    	</table>
+	</div>
+    <script type="text/javascript">
+	    jQuery(function() {
+	    	jQuery( "#dialog" ).dialog({
+	      		autoOpen: false,
+	      		modal: true,
+				width: 400,
+				height:200
+	    	});
+	 
+	    	jQuery(".dialog-item" ).click(function(){
+	      		jQuery("#dialog" ).dialog( "open" );
+	    	});
+	  	});
+    	jQuery('#on_hold').tooltip();
+    	decorateList('products-list', 'none-recursive');
+    	
+    	function registerRequest(selector){
+    		var success = true;
+    		var message = '';
+    		if(!jQuery('input[name=dialog_name]').val()){
+    			success = false;
+    			message+= 'Please add a name. \n';
+    		}
+    		if(!jQuery('input[name=dialog_email]').val()){
+    			success = false;
+    			message+= 'Please add an email.';
+    		}
+    		
+    		if(success==true){
+    			jQuery.ajax({
+					url: '<?php print $this->getUrl('printerfriendly/index/saveInterest'); ?>',
+					type: 'GET',
+					data: {name:jQuery('input[name=dialog_name]').val(),email:jQuery('input[name=dialog_email]').val(),product:jQuery('input[name=dialog_product]').val()},
+					success: function(response) {
+						jQuery('.button-'+jQuery('input[name=dialog_product]').val()+' span span').html("We registered Your interes in this");
+						jQuery('.button-'+jQuery('input[name=dialog_product]').val()).removeClass('dialog-item');
+						jQuery('input[name=dialog_name]').val('');
+						jQuery('input[name=dialog_email]').val('');
+						jQuery('input[name=dialog_product]').val('');
+						jQuery("#dialog" ).dialog( "destroy" );
+						jQuery("#dialog" ).dialog( "close" );
+						
+						
+					}
+		});
+    		}else{
+    			alert(message);
+    		}
+    		
+    	}
+	</script>
+	<?php else: ?>
+	
+	<?php // Grid Mode ?>
+
+    <?php $_collectionSize = $_productCollection->count() ?>
+    <?php $_columnCount = $this->getColumnCount(); ?>
+    <?php $i=0; foreach ($_productCollection as $_product): ?>
+        <?php if ($i++%$_columnCount==0): ?>
+        <ul class="products-grid">
+        <?php endif ?>
+            <li class="item<?php if(($i-1)%$_columnCount==0): ?> first<?php elseif($i%$_columnCount==0): ?> last<?php endif; ?>">
+                <a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" class="product-image"><img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->constrainOnly(true)->keepFrame(true)->resize(175, null); ?>" width="175" height="175" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" /></a>
+                <h2 class="product-name">
+                    <a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($_product->getName(), null, true) ?>">
+                        <?php echo $_helper->productAttribute($_product, $_product->getName(), 'name'); ?>
+                    </a>
+                </h2>
+                <div class="additional-container">
+                    <?php 
+                        $productDate = $_product->getEntryDate();
+                            if($productDate) {
+                                $firstLetter = substr($productDate,0,1);
+
+                                if(strtoupper($firstLetter) !== "C") {
+                                    $productDate = "C".$productDate;
+                                } else if (strlen(str_replace(' ', '', $productDate)) == 1) {
+                                    $productDate = "N/A";                                               
+                                }
+                            }
+							$productDate2 = $_product->getEntryDate2();
+							//var_dump($productDate2);
+							if($productDate2){
+								$productDate.=' ('.$productDate2.')';
+								$productDate = str_replace('C', '', $productDate);
+							}
+                    ?>
+                    <!--<div class="date-box"><?php // echo $_product->getEntryDate() ? $this->escapeHtml($_product->getEntryDate()) : ''; ?></div>-->
+                    <div class="date-box"><?php echo $productDate; ?></div>
+                    <?php echo $this->getPriceHtml($_product, true) ?>	
+                </div>
+                
+                
+            </li>
+        <?php if ($i%$_columnCount==0 || $i==$_collectionSize): ?>
+        </ul>
+        <?php endif ?>
+        <?php endforeach ?>
+        <script type="text/javascript">decorateGeneric($$('ul.products-grid'), ['odd','even','first','last'])</script>
+	
+    <?php endif; ?>
+
+    <div class="toolbar-bottom">
+        <?php echo $this->getToolbarHtml() ?>
+    </div>
+</div>
+<?php endif; ?>

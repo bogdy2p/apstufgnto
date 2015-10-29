@@ -1,0 +1,14 @@
+<layout version="0.1.0">
+    <default>       
+        <remove name="footer.newsletter"/>
+        <!--Remove the Right Products Viewed block -->
+        <remove name="catalog.compare.sidebar"/>
+        <remove name="left.reports.product.viewed"/>   
+        <remove name="right.reports.product.viewed"/>
+        <!--frontend/base/default/template/paypal/partner/logo.phtml-->
+        <remove name="paypal.partner.right.logo"/>
+        <!--frontend/base/default/template/poll/active.phtml-->
+        <remove name="right.poll"/>
+    </default>
+</layout>
+
