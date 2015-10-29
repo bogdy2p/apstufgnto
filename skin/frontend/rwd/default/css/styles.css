@@ -10621,4 +10621,8 @@ div.calendar table td.button {
   color: white;
 }
 
+.nav-primary .level1 a {
+  color: red !important;
+}
+
 /*#416F64*/
